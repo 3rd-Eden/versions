@@ -39,9 +39,10 @@ exports.listen = exports.start = function listen(port, fn) {
     // Now that we have started our timing sequence, load all other middleware
     // layers should be configured so they are included in the timing.
     .use(versions.initialize(config))
-    //.use(versions.metrics())
+    .use(versions.versioning())
+    .use(versions.conditional())
     .use(connect.compress())
-    .use(connect.staticCache())
+    .use(versions.memorize())
     .use(connect.static(path.resolve(config.root, config.directory), {
         maxAge: config.maxAge
     }))

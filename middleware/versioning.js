@@ -14,4 +14,6 @@ module.exports = function prefix(req, res, next) {
   // Remove the matched versioning path from the url
   url.splice(1, 1);
   req.url = req.originalUrl = url.join('/');
+
+  next();
 };

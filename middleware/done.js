@@ -1,6 +1,7 @@
 'use strict';
 
-var version = require('../package.json').version;
+var version = require('../package.json').version
+  , response = new Buffer('/* 404: File Not Found. Served by: Versions/'+ version +' */');
 
 /**
  * 404.js:
@@ -9,5 +10,6 @@ var version = require('../package.json').version;
 module.exports = function fourofour(req, res) {
   res.statusCode = 404;
   res.setHeader('Content-Type', 'text/plain');
-  res.end('/* 404: File Not Found. Served by: Versions/'+ version +' */');
+
+  res.end(response);
 };

@@ -3,14 +3,6 @@
 var version = require('../package.json').version
   , cookie = require('cookie');
 
-/**
- * Simple persistent storage layer that is used to store data, metrics and what
- * more.
- *
- * @private
- */
-var persistent = Object.create(null);
-persistent.metrics = Object.create(null);
 
 /**
  * initialize.js:
@@ -23,9 +15,18 @@ persistent.metrics = Object.create(null);
  * @param {Object} config configuration that was used for this request
  */
 module.exports = function initialize(config) {
+  /**
+   * Simple persistent storage layer that is used to store data, metrics and what
+   * more.
+   *
+   * @private
+   */
+  var persistent = Object.create(null);
+
+  persistent.metrics = Object.create(null);
+  persistent.config = config;
 
   return function versions(req, res, next) {
-    res.setHeader('Expires', new Date(Date.now() + config.maxAge).toUTCString());
     res.setHeader('X-Powered-By', 'Versions/'+ version);
     res.setHeader('Vary', 'Accept-Encoding');
 
@@ -43,7 +44,7 @@ module.exports = function initialize(config) {
     }
 
     // Add our caching
-    res.versions = persistent;
+    req.versions = persistent;
     next();
   };
 };

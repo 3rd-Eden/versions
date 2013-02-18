@@ -6,14 +6,17 @@
  * @private
  */
 [
-  { method: 'initialize', middleware: 'initialize' },
-  { method: 'versioning', middleware: 'prefix' },
-  { method: 'update', middleware: 'update' },
-  { method: 'done', middleware: '404' }
+  'done',
+  'conditional',
+  'initialize',
+  'memorize',
+  'update',
+  'versioning'
 ].forEach(function generate(api) {
   var cached;
-  exports[api.method] = function sugar(arg) {
-    cached = cached || require('./'+ api.middleware);
+
+  exports[api] = function sugar(arg) {
+    cached = cached || require('./'+ api);
 
     return arg ? cached(arg) : cached;
   };
