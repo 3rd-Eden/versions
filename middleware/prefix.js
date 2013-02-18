@@ -1,6 +1,7 @@
 'use strict';
 
 /**
+ * prefix.js:
  * Allow prefixing of the urls for caching busting or cache references. If the
  * url starts with `versions:` it will remove supplied path and stitches back
  * the correct url.

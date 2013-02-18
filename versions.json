@@ -1,0 +1,5 @@
+{
+  "port": 8080,
+  "maxAge": "30 days",
+  "directory": "./public"
+}

@@ -6,12 +6,15 @@
  * @private
  */
 [
+  { method: 'initialize', middleware: 'initialize' },
   { method: 'versioning', middleware: 'prefix' },
-  { method: 'headers', middleware: 'headers' },
+  { method: 'update', middleware: 'update' },
   { method: 'done', middleware: '404' }
 ].forEach(function generate(api) {
   var cached;
-  exports[api.method] = function sugar() {
-    return cached || (cached = require('./'+ api.middleware));
+  exports[api.method] = function sugar(arg) {
+    cached = cached || require('./'+ api.middleware);
+
+    return arg ? cached(arg) : cached;
   };
 });

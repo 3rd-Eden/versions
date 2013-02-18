@@ -1,6 +1,7 @@
 'use strict';
 
 var connect = require('connect')
+  , path = require('path')
   , ms = require('ms');
 
 /**
@@ -27,19 +28,26 @@ var versions = require('./middleware');
  * @api public
  */
 exports.listen = exports.start = function listen(port, fn) {
-  port = port || config.port || 8080;
+  // Parse down the configuration options
+  config.port = config.port || port || 8080;
+  config.root = config.root || path.dirname(module.parent.filename);
+  config.maxAge = ms(config.maxAge);
 
   return connect()
     .use(connect.responseTime())
-    .use(versions.versioning())
+
+    // Now that we have started our timing sequence, load all other middleware
+    // layers should be configured so they are included in the timing.
+    .use(versions.initialize(config))
+    //.use(versions.metrics())
     .use(connect.compress())
-    .use(versions.headers())
     .use(connect.staticCache())
-    .use(connect.static(config.directory, {
-        maxAge: ms(config.maxAge)
+    .use(connect.static(path.resolve(config.root, config.directory), {
+        maxAge: config.maxAge
     }))
+    .use(versions.update())
     .use(versions.done())
-  .listen(port, fn);
+  .listen(config.port, fn);
 };
 
 /**
@@ -93,4 +101,5 @@ exports.read = function read(path) {
  *
  * @private
  */
+exports.read('./versions.json');
 exports.read('../../node_modules/versions.json');
