@@ -27,7 +27,7 @@ var versions = require('./middleware');
  * @api public
  */
 exports.listen = exports.start = function listen(port, fn) {
-  port = port || 8080;
+  port = port || config.port || 8080;
 
   return connect()
     .use(connect.responseTime())
