@@ -3,19 +3,27 @@
 var connect = require('connect')
   , ms = require('ms');
 
-// Read our configuration.
-var config = {};
+/**
+ * Our configuration object.
+ *
+ * @private
+ */
+var config = Object.create(null);
 
-// Check if there's a `versions.json` file in the directory that required this
-// module. This makes configuration a lot easier.
-try { config = require('../../node_modules/versions.json'); }
-catch (e) {}
+/**
+ * Load in our own middlware layers.
+ *
+ * @type {Object}
+ * @private
+ */
+var versions = require('./middleware');
 
 /**
  * Start the versions server.
  *
  * @param {Number} port The port number the server should listen on, or 8080
  * @param {Function} fn Optional callback argument for when the server started
+ * @returns {Server}
  * @api public
  */
 exports.listen = exports.start = function listen(port, fn) {
@@ -23,12 +31,35 @@ exports.listen = exports.start = function listen(port, fn) {
 
   return connect()
     .use(connect.responseTime())
+    .use(versions.versioning())
     .use(connect.compress())
-    .use(require('./middleware/headers'))
+    .use(versions.headers())
     .use(connect.staticCache())
-    .use(connect.static(config.directory, { maxAge: ms(config.maxAge) }))
-    .use(require('./middleware/404.js'))
+    .use(connect.static(config.directory, {
+        maxAge: ms(config.maxAge)
+    }))
+    .use(versions.done())
   .listen(port, fn);
+};
+
+/**
+ * Read in a configuration file and merge it with our internal configuration.
+ *
+ * @param {String} path
+ * @returns {Versions}
+ * @api public
+ */
+exports.read = function read(path) {
+  var local = {};
+
+  try { local = require(path); }
+  catch (e) { return exports; }
+
+  Object.keys(local).forEach(function merge(key) {
+    config[key] = local[key];
+  });
+
+  return exports;
 };
 
 /**
@@ -43,6 +74,7 @@ exports.listen = exports.start = function listen(port, fn) {
  *   require('versions').path('/public').listen();
  *
  * @param {Mixed} arg The value that needs to be set.
+ * @returns {Versions}
  * @api public
  */
 [
@@ -54,3 +86,11 @@ exports.listen = exports.start = function listen(port, fn) {
     return exports;
   };
 });
+
+/**
+ * Check if there's a dedicated `versions.json` configuration file in the folder
+ * that depends on our module and load it as default configuration.
+ *
+ * @private
+ */
+exports.read('../../node_modules/versions.json');
