@@ -29,7 +29,7 @@ var versions = require('./middleware');
  */
 exports.listen = exports.start = function listen(port, fn) {
   // Parse down the configuration options
-  config.port = config.port || port || 8080;
+  config.port = port || config.port;
   config.root = config.root || path.dirname(module.parent.filename);
   config.maxAge = ms(config.maxAge);
 
