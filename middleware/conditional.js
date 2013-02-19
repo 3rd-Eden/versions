@@ -10,7 +10,7 @@ module.exports = function conditional(req, res, next) {
     && req.headers['if-none-match']
     || req.headers['if-modified-since']
   ) {
-    res.setHeader('Expires', new Date(Date.now() + res.versions.config.maxAge).toUTCString());
+    res.setHeader('Expires', new Date(Date.now() + req.versions.config.maxAge).toUTCString());
     res.statusCode = 304;
 
     // Not needed for 304 requests, it only adds pointless overhead
