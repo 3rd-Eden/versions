@@ -6,10 +6,11 @@
  * @private
  */
 [
-  'done',
   'conditional',
+  'done',
   'initialize',
   'memorize',
+  'pull',
   'update',
   'versioning'
 ].forEach(function generate(api) {

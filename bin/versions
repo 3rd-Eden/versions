@@ -1,0 +1,3 @@
+#!/usr/bin/env node
+
+require('../').path('../').cache('10 hours').listen(8081);

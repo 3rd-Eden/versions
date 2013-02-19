@@ -1,8 +1,8 @@
 'use strict';
 
 var version = require('../package.json').version
+  , Expire = require('expirable')
   , cookie = require('cookie');
-
 
 /**
  * initialize.js:
@@ -25,6 +25,8 @@ module.exports = function initialize(config) {
 
   persistent.metrics = Object.create(null);
   persistent.config = config;
+  persistent.cache = new Expire(config.expire);
+  persistent.write = write;
 
   return function versions(req, res, next) {
     res.setHeader('X-Powered-By', 'Versions/'+ version);
@@ -48,3 +50,22 @@ module.exports = function initialize(config) {
     next();
   };
 };
+
+/**
+ * @param {Response} res HTTP server response
+ * @param {Object} data the stuff that we need to write
+ * @param {Object} configuration
+ * @api private
+ */
+function write(res, data, config) {
+  var body = data.buffer;
+
+  // @TODO gzip
+  res.setHeader('Expires', new Date(Date.now() + config.maxAge).toUTCString());
+  res.setHeader('Cache-Control', 'max-age='+ config.maxAge +', public');
+  res.setHeader('Last-Modified', data.lastModified);
+  res.setHeader('Content-Type', data.contentType);
+  res.setHeader('Content-Length', body.length);
+
+  res.end(body);
+}

@@ -5,22 +5,20 @@
  * Memorize the static file serving.
  */
 module.exports = function update(req, res, next) {
+  var versions = req.versions
+    , cache = versions.cache;
+
   // Check if we need to handle this file from our internal memory cache
   if (
-       req.url in req.versions  // Is cached internally
+       cache.has(req.url)       // Is the request cached internally
     && !req.headers.range       // Not a range request, as we send the whole buffer
   ) {
-    var details = req.versions[req.url]
-      , config = req.versions.config
-      , data = details.data;
+    var data = cache.get(req.url)
+      , config = versions.config;
 
-    res.setHeader('Expires', new Date(Date.now() + config.maxAge).toUTCString());
-    res.setHeader('Cache-Control', 'max-age='+ config.maxAge +', public');
-    res.setHeader('Last-Modified', details.lastModified);
-    res.setHeader('Content-Type', details.contentType);
-    res.setHeader('Content-Length', data.length);
-
-    return res.end(data);
+    // We are probably still bufering this request, bail out
+    if (!data) return next();
+    return versions.write(res, data, config);
   }
 
   next();

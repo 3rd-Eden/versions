@@ -47,6 +47,7 @@ exports.listen = exports.start = function listen(port, fn) {
         maxAge: config.maxAge
     }))
     .use(versions.update())
+    .use(versions.pull())
     .use(versions.done())
   .listen(config.port, fn);
 };

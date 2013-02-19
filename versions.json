@@ -1,5 +1,10 @@
 {
   "port": 8080,
   "maxAge": "30 days",
-  "directory": "./public"
+  "directory": "./public",
+  "expire": "1 hour",
+  "origin-pull": {
+    "webops": "https://webops.nodejitsu.com",
+    "home": "https://www.nodejitsu.com"
+  }
 }
