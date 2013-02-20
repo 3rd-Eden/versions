@@ -17,7 +17,7 @@ var config = Object.create(null);
  * @type {Object}
  * @private
  */
-var versions = require('./middleware');
+var versions = require('./lib');
 
 /**
  * Start the versions server.
