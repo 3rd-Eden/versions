@@ -5,7 +5,7 @@
   "expire internal cache": "1 hour",
   "cors": "*",
   "origin servers": [
-    { "webops": "https://webops.nodejitsu.com" },
-    { "home": "https://www.nodejitsu.com" }
+    { "url": "https://www.nodejitsu.com", "id": "home" },
+    { "url": "https://webops.nodejitsu.com", "id": "webops" }
   ]
 }
