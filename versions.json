@@ -1,11 +1,11 @@
 {
   "port": 8080,
-  "maxAge": "30 days",
+  "max age": "30 days",
   "directory": "./public",
-  "expire": "1 hour",
+  "expire internal cache": "1 hour",
   "cors": "*",
-  "origin-pull": {
-    "webops": "https://webops.nodejitsu.com",
-    "home": "https://www.nodejitsu.com"
-  }
+  "origin servers": [
+    { "webops": "https://webops.nodejitsu.com" },
+    { "home": "https://www.nodejitsu.com" }
+  ]
 }

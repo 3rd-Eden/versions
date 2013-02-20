@@ -1,3 +1,7 @@
 #!/usr/bin/env node
 
-require('../').path('../').cache('10 hours').listen(8081);
+require('../').path('../').cache('10 hours').listen(8081, function (err) {
+  if (!err) return console.log('Versions started');
+
+  return console.error('Failed to start Versions');
+});

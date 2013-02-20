@@ -31,7 +31,7 @@ exports.listen = exports.start = function listen(port, fn) {
   // Parse down the configuration options
   config.port = port || config.port;
   config.root = config.root || path.dirname(module.parent.filename);
-  config.maxAge = ms(config.maxAge);
+  config.maxAge = ms(config['max age']);
 
   return connect()
     .use(connect.responseTime())
@@ -46,7 +46,7 @@ exports.listen = exports.start = function listen(port, fn) {
     .use(connect.static(path.resolve(config.root, config.directory), {
         maxAge: config.maxAge
     }))
-    .use(versions.update())
+    .use(versions.routes())
     .use(versions.pull())
     .use(versions.done())
   .listen(config.port, fn);
@@ -89,7 +89,8 @@ exports.read = function read(path) {
  */
 [
   { method: 'path', config: 'directory' },
-  { method: 'cache', config: 'maxAge' }
+  { method: 'cache', config: 'max age' },
+  { method: 'expire', config: 'expire internal cache' }
 ].forEach(function generate(api) {
   exports[api.method] = function sugar(arg) {
     config[api.config] = arg;
