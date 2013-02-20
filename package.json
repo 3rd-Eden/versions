@@ -25,9 +25,13 @@
   "license": "MIT",
   "dependencies": {
     "connect": "2.7.x",
+    "cookie": "0.0.x",
+    "expirable": "0.0.x",
     "ms": "0.5.x",
-    "cookie": "0.0.5",
-    "request": "~2.12.0",
-    "expirable": "0.0.4"
+    "request": "2.14.x"
+  },
+  "subdomain": "cdn",
+  "engines": {
+    "node": "0.8.x"
   }
 }
