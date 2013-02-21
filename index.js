@@ -63,7 +63,14 @@ exports.read = function read(path) {
   var local = {};
 
   try { local = require(path); }
-  catch (e) { return exports; }
+  catch (e) {
+    if (e.code !== 'MODULE_NOT_FOUND') {
+      console.error('[versions] Failed to parse '+ path +':');
+      console.error('[versions] - The file contains invalid JSON.');
+    }
+
+    return exports;
+  }
 
   Object.keys(local).forEach(function merge(key) {
     config[key] = local[key];

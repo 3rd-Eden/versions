@@ -3,7 +3,9 @@
 var version = require('../package.json').version;
 
 require('../').path('../').cache('10 hours').listen(8081, function (err) {
-  if (!err) return console.log('Started versions/'+ version, 'on port 8081');
+  if (!err) {
+    return console.log('[versions] Started versions/'+ version, 'on port 8081');
+  }
 
-  return console.error('Failed to start Versions');
+  return console.error('[versions] Failed to start Versions');
 });

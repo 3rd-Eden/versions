@@ -1,6 +1,6 @@
 {
   "auth": "",
-  "blacklist": ['.svn', '.git'],
+  "blacklisted extensions": ["foo"],
   "cors": "*",
   "directory": "./public",
   "expire internal cache": "1 hour",
