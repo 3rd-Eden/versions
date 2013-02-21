@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
+var version = require('../package.json').version;
+
 require('../').path('../').cache('10 hours').listen(8081, function (err) {
-  if (!err) return console.log('Versions started');
+  if (!err) return console.log('Started versions/'+ version, 'on port 8081');
 
   return console.error('Failed to start Versions');
 });

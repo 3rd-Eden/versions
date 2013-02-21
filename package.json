@@ -30,7 +30,7 @@
     "ms": "0.5.x",
     "request": "2.14.x"
   },
-  "subdomain": "cdn",
+  "subdomain": "versions",
   "engines": {
     "node": "0.8.x"
   }
