@@ -60,7 +60,7 @@ node_modules folder). But you can also configure the module through a chainable
 API. And the last would be a hybrid of those. Using a configuration file and
 using the API to override some of the configuration values.
 
-#### versions.json
+### versions.json
 
 The versions file can configure different aspects of the module. The following
 properties can be configured:
@@ -111,6 +111,20 @@ properties can be configured:
     <code>90 days</code>. Defaults to <code>30 days</code>. Please note that
     this value should not be longer then a year.
   </dd>
+
+  <dt>port</dt>
+  <dd>
+    As you might imagine, on which port number do you want to run the server.
+    Defaults to <code>8080</code>.
+  </dd>
+
+  <dt>origin servers</dt>
+  <dd>
+    An array of of servers objects that is used to fetch resources from that is
+    not found in the <code>directory</code> property.
+
+    <code>{ url: "http://example.com", name: "foo" }</code>
+  </dd>
 </dl>
 
 Full example of a versions.json:
@@ -118,7 +132,7 @@ Full example of a versions.json:
 ```js
 {
   "auth": "my-secret-auth-key",
-  "blacklisted extensions": [".foo"],
+  "blacklisted extensions": [".foo", ".conf"],
   "cors": "*",
   "directory": "./public",
   "expire internal cache": "1 hour",
