@@ -68,10 +68,48 @@ properties can be configured:
 <dl>
   <dt>auth</dd>
   <dd>
-    The `auth` property is a simple security token that you can use to secure
-    your versions REST API. It's unsecured by default but by after setting this
-    property it requires an `?auth=<prop>` parameter to be used to access the
-    API.
+    The <code>auth</code> property is a simple security token that you can use
+    to secure your versions REST API. It's unsecured by default but by after
+    setting this property it requires an <code>?auth=<prop></code> parameter to
+    be used to access the API.
+  </dd>
+
+  <dt>blacklisted extensions</dt>
+  <dd>
+    Black list extensions that you do want to have pulled from your origin
+    server. You can for example black list <code>.conf</code> files or maybe
+    some other random files. Please note that people can still fetch these files
+    directly from the origin server.
+  </dd>
+
+  <dt>cors</dt>
+  <dd>
+    Set custom <code>Access-Control-Allow-Origin</code> headers. The default
+    value is <code>*</code> so all values are allowed. If you only want allow
+    access from a specific domain set the domain here.
+  </dd>
+
+  <dt>directory</dt>
+  <dd>
+    A directory that is relative the module that required versions that is used
+    to serve static content. If you want this directory to be relative to a
+    different path. You can see a <code>root</code> property.
+  </dd>
+
+  <dt>expire internal cache</dt>
+  <dd>
+    How long should we keep items in our internal (memory) cache. It accepts a
+    numeric value as miliseconds or a human readable string like
+    <code>10 hours</code> or <code>90 minutes</code>. Defaults to
+    <code>1 hour</code>.
+  </dd>
+
+  <dt>max age</dt>
+  <dd>
+    How long should the browser cache the files? It accepts a numeric value as
+    miliseconds or a human readable string like <code>10 hours</code> or
+    <code>90 days</code>. Defaults to <code>30 days</code>. Please note that
+    this value should not be longer then a year.
   </dd>
 </dl>
 
