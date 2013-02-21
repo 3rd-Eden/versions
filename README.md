@@ -65,7 +65,15 @@ using the API to override some of the configuration values.
 The versions file can configure different aspects of the module. The following
 properties can be configured:
 
-- **auth**
+<dl>
+  <dt>auth</dd>
+  <dd>
+    The `auth` property is a simple security token that you can use to secure
+    your versions REST API. It's unsecured by default but by after setting this
+    property it requires an `?auth=<prop>` parameter to be used to access the
+    API.
+  </dd>
+</dl>
 
 Full example of a versions.json:
 
