@@ -20,6 +20,17 @@ var config = Object.create(null);
 var versions = require('./lib');
 
 /**
+ * Creates a connection with the specified versions server to fetch the current
+ * version number of the app.
+ *
+ * @param {String} server The server that should connect to
+ * @param {String} auth Optional authorization parameter
+ */
+exports.connect = function connect(server, auth) {
+  return require('./client')(config, server, auth);
+};
+
+/**
  * Start the versions server.
  *
  * @param {Number} port The port number the server should listen on, or 8080
@@ -46,7 +57,7 @@ exports.listen = exports.start = function listen(port, fn) {
     .use(connect.static(path.resolve(config.root, config.directory), {
         maxAge: config.maxAge
     }))
-    .use(versions.routes())
+    .use(versions.REST())
     .use(versions.pull())
     .use(versions.done())
   .listen(config.port, fn);
@@ -111,5 +122,6 @@ exports.read = function read(path) {
  *
  * @private
  */
-exports.read('./versions.json');
-exports.read('../../node_modules/versions.json');
+exports.read('../../node_modules/package.json');    // For version number
+exports.read('./versions.json');                    // For our defaults
+exports.read('../../node_modules/versions.json');   // For their defaults
