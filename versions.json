@@ -5,6 +5,7 @@
   "directory": "./public",
   "expire internal cache": "1 hour",
   "max age": "30 days",
+  "log level": 'log',
   "origin servers": [
     { "url": "https://www.nodejitsu.com", "id": "home" },
     { "url": "https://webops.nodejitsu.com", "id": "webops" }
