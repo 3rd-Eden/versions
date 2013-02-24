@@ -10,5 +10,6 @@
     { "url": "https://www.nodejitsu.com", "id": "home" },
     { "url": "https://webops.nodejitsu.com", "id": "webops" }
   ],
-  "port": 8080
+  "port": 8080,
+  "aliases": []
 }

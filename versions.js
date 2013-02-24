@@ -162,6 +162,11 @@ Versions.prototype.initialize = function initialize(type) {
   this.cache = new Expirable(this.get('expire internal cache'));
   this.metrics = require('./metrics').collect(this);
 
+  // Do we need to sync?
+  if (this.get('sync') && this.get('redis')) {
+    this.sync();
+  }
+
   return this;
 };
 
@@ -183,24 +188,113 @@ Versions.prototype.get = function get(key) {
  * @param {Mixed} to The new value
  * @returns {Versions}
  */
-Versions.prototype.set = function set(key, to) {
+Versions.prototype.set = function set(key, to, emit) {
   var from = this.config[key];
 
   // Do we need to parse down the value?
   if (~this.convert.indexOf(key)) to = this.parse(to);
+  if (from === to) return this;
 
-  this.config[key] = to;
-  return this.emit('change:'+ key, from, to);
+  // Always emit the change, unless an explecit `false` has been provided
+  if (emit !== false) emit = true;
+
+  // Check how we need to set the data, try to make it aware of different types
+  // that can be stored in a configuration like objects and arrays, we probably
+  // want to merge those in instead of completely overriding the config value.
+  if (Array.isArray(from)) {
+    if (!Array.isArray(to) && !~from.indexOf(to)) from.push(to);
+    else if (to.forEach) to.forEach(function each(value) {
+      if (~from.indexOf(value)) return;
+
+      from.push(value);
+    });
+
+    this.config[key] = from;
+  } else if ('object' === typeof from) {
+    Object.keys(to).forEach(function each(key) {
+      from[key] = to[key];
+    });
+
+    this.config[key] = from;
+  } else {
+    this.config[key] = to;
+  }
+
+  return emit ? this.emit('change:'+ key, from, to) : this;
 };
 
 /**
- * How is data synced between server and client?
+ * Setup a sync system that can be used for client to communicate with the
+ * servers.
+ *
+ * @api public
  */
-Versions.prototype.sync = function sync(provider) {
-  provider = provider || this.get('sync');
+Versions.prototype.sync = function sync() {
+  if (this.get('redis')) {
+    if (this.connections) return false;
 
-  var redis = require('redis');
-  this.on('change:version');
+    var namespace = this.get('redis').namespace || 'versions'
+      , self = this
+      , pub, sub;
+
+    // Generate the redis connections
+    this.connections = this.versions.factory();
+    sub = this.connections.sub;
+    pub = this.connections.pup;
+
+    // Setup our subscription channel so we can start listening for events.
+    sub.on('message', function message(channel, data) {
+      if (channel !== namespace) return;
+
+      // Prevent invalid data to be transmitted
+      try { data = JSON.parse(data); }
+      catch (e) {
+        return self.logger.error('Failed to parse PUB/SUB message', data);
+      }
+
+      // Make sure that it's valid data
+      if (!data || !data.key || data.value) {
+        return self.logger.error('Received an invalid data structure', data);
+      }
+
+      // Make sure that the value actually differs from our own implementation.
+      var prev = self.get(data.key);
+      if (prev === data.value) return self.logger.debug('Data already up to date');
+
+      self.set(data.key, data.value, false);
+    }).subscribe(namespace);
+
+    // Start listening for configuration changes so we can publish them across
+    // the cluster.
+    ['version', 'aliases'].forEach(function forEach(key) {
+      self.on('change:'+ key, function change(from, to) {
+        pub.publish(namespace, JSON.stringify(to));
+      });
+    });
+
+    return true;
+  }
+
+  return false;
+};
+
+/**
+ * Generate some Redis connections.
+ *
+ * @returns {Object}
+ * @api private
+ */
+Versions.prototype.factory = function factory() {
+  var config = this.get('redis')
+    , redis = require('redis');
+
+  return ['pub', 'sub'].reduce(function create(conn, type) {
+    var client = conn[type] = redis.createClient(config.port, config.host);
+
+    // Optional connection authorization
+    if ('auth' in config) client.auth();
+    return conn;
+  }, {});
 };
 
 /**
@@ -239,6 +333,14 @@ Versions.prototype.sync = function sync(provider) {
  */
 Versions.prototype.connect = function connect(server, options) {
   return new Versions.Client(this, server, options);
+};
+
+Versions.prototype.end = function () {
+  if ('connections' in this) {
+    Object.keys(this.connections).forEach(function each(key) {
+      this.connections[key].end();
+    }, this);
+  }
 };
 
 /**
