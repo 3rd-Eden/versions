@@ -166,7 +166,7 @@ Versions.prototype.listen = function listen(port, callback) {
 
   // Configure the middleware
   this.layer('responseTime');
-  this.layer('initialization');
+  this.layer('initialize');
   this.layer('conditional');
   this.layer('compress');
   this.layer('memorize');
@@ -191,7 +191,12 @@ Versions.prototype.listen = function listen(port, callback) {
  * @api private
  */
 Versions.prototype.initialize = function initialize(type) {
-  // Set up our middleware handlers.
+  // Setup our extra configuration values
+  if (!this.get('static')) {
+    this.set('static', path.resolve(this.get('root'), this.get('directory')));
+  }
+
+  // Setup our middleware handlers.
   this.connect = require('connect');
   this.app = this.connect();
 

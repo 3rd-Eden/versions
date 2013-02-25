@@ -13,21 +13,21 @@ var HashRing = require('hashring');
 function Sync(versions, server, options) {
   options = options || {};
 
-  var domains = this.get('aliases')
-    , self = this;
+  this.versions = versions;
+  this.interval = versions.parse(options.interval || '10 seconds');
+  this.server = server;
+  this.destroyed = false;
 
   // Generate a list domains that are running our versions software. So we can
   // add these servers to our hashring directly
+  var domains = this.get('aliases');
+
   if (!~domains.indexOf(server)) domains.push(server);
 
-  this.server = server;
-  this.destroyed = false;
-  this.versions = versions;
   this.hashring = new HashRing(domains);
-  this.interval = versions.parse(options.interval || '10 seconds');
 
   // Setup our syncing
-  this.initialize();
+  //this.initialize();
 }
 
 /**
@@ -93,7 +93,7 @@ Sync.prototype.prefix = function prefix(server) {
  * @api private
  */
 Sync.prototype.get = function get(config) {
-  return this.versions.config.get(config);
+  return this.versions.get(config);
 };
 
 /**
@@ -104,7 +104,7 @@ Sync.prototype.get = function get(config) {
  * @api private
  */
 Sync.prototype.set = function set(key, value) {
-  return this.versions.config.set(key, value);
+  return this.versions.set(key, value);
 };
 
 /**
@@ -148,7 +148,7 @@ Sync.prototype.initialize = function initialize() {
 
   // Determin which kind of syncing we are using, are using our Redis backend or
   // just plain ol HTTP.
-  if (this.verions.sync()) {
+  if (this.versions.sync()) {
     // We need to fetch our configuration from redis and merge it with our own
     // to ensure that we have an up to date version number internally.
   } else if (!this.get('redis')) {
@@ -222,3 +222,5 @@ Sync.prototype.end = function end(callback) {
  * @private
  */
 function noop() {}
+
+module.exports = Sync;
