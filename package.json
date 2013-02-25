@@ -26,12 +26,18 @@
   "dependencies": {
     "connect": "2.7.x",
     "cookie": "0.0.x",
+    "devnull": "0.0.x",
     "expirable": "0.0.x",
+    "hashring": "1.0.x",
     "ms": "0.5.x",
     "request": "2.14.x"
   },
   "subdomain": "versions",
   "engines": {
     "node": "0.8.x"
+  },
+  "devDependencies": {
+    "chai": "1.5.x",
+    "mocha": "1.8.x"
   }
 }
