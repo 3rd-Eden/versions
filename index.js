@@ -370,7 +370,7 @@ Versions.prototype.sync = function sync() {
     // Generate the Redis connections
     this.connections = this.factory();
     sub = this.connections.sub;
-    pub = this.connections.pup;
+    pub = this.connections.pub;
 
     // Setup our subscription channel so we can start listening for events.
     sub.on('message', function message(channel, data) {
@@ -383,12 +383,14 @@ Versions.prototype.sync = function sync() {
       }
 
       // Make sure that it's valid data
-      if (!data || !data.key || data.value) {
+      if (!data || !data.key || !data.value) {
         return self.logger.error('Received an invalid data structure', data);
       }
 
       // Make sure that the value actually differs from our own implementation.
       var prev = self.get(data.key);
+      self.emit('sync:'+ data.key, data.value, prev);
+
       if (prev === data.value) return self.logger.debug('Data already up to date');
 
       self.set(data.key, data.value, false);
@@ -398,7 +400,11 @@ Versions.prototype.sync = function sync() {
     // the cluster.
     ['version', 'aliases'].forEach(function forEach(key) {
       self.on('change:'+ key, function change(from, to) {
-        pub.publish(namespace, JSON.stringify(to));
+        pub.publish(namespace, JSON.stringify({
+            key: key
+          , value: to
+          , from: from
+        }));
       });
     });
 

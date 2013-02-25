@@ -27,7 +27,7 @@ function Sync(versions, server, options) {
   this.hashring = new HashRing(domains);
 
   // Setup our syncing
-  //this.initialize();
+  this.initialize();
 }
 
 /**
@@ -35,9 +35,6 @@ function Sync(versions, server, options) {
  *
  *   var versions = require('versions').connect(server);
  *   versions.on('error', function error() { .. });
- *
- * And listen to events from the versions instance, like configuration changes
- * etc.
  *
  * Proxy the logger so we don't need to setup our own logger.
  *
@@ -47,7 +44,7 @@ function Sync(versions, server, options) {
  * @type {Function}
  * @api public
  */
-['on', 'logger', 'request'].forEach(function proxy(api) {
+['logger', 'request'].forEach(function proxy(api) {
   Object.defineProperty(Sync.prototype, api, {
     get: function get() {
       return this.versions[api];
@@ -101,10 +98,22 @@ Sync.prototype.get = function get(config) {
  *
  * @param {String} key
  * @param {Mixed} value
+ * @param {Boolean} emit
  * @api private
  */
-Sync.prototype.set = function set(key, value) {
-  return this.versions.set(key, value);
+Sync.prototype.set = function set(key, value, emit) {
+  this.versions.set(key, value, emit);
+  return this;
+};
+
+/**
+ * Proxy the events from the Versions instance to the client.
+ *
+ * @api public
+ */
+Sync.prototype.on = function on() {
+  this.versions.on.apply(this.versions, arguments);
+  return this;
 };
 
 /**
