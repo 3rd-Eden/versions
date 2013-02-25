@@ -1,4 +1,4 @@
---reporter spec
---ui bdd
---watch
 --require ./test/common.js
+--reporter spec
+--timeout 5000
+--ui bdd

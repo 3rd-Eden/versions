@@ -1,4 +1,4 @@
-describe.only('version.layer() integration', function () {
+describe('version.layer() integration', function () {
   'use strict';
 
   var versions = require('../').clone().path('../').listen(portnumbers)
@@ -260,7 +260,150 @@ describe.only('version.layer() integration', function () {
     });
   });
 
-  describe('.layer(rest)', function () {});
+  describe('.layer(rest)', function () {
+    versions.set('auth', 'foobar');
+
+    describe('authorization', function () {
+      it('ignores requests when the auth key is set', function (done) {
+        versions.app.request()
+        .get('/version')
+        .end(function (res) {
+          expect(res.statusCode).to.equal(404);
+
+          done();
+        });
+      });
+
+      it('accepts requets when the auth key is set and ?auth is used', function (done) {
+        versions.app.request()
+        .get('/version?auth=foobar')
+        .end(function (res) {
+          versions.set('auth', '');
+          expect(res.statusCode).to.equal(200);
+          done();
+        });
+      });
+    });
+
+    describe('/version', function () {
+      it('sends the current version', function (done) {
+        versions.app.request()
+        .get('/version')
+        .end(function (res) {
+          var body = JSON.parse(res.body);
+
+          expect(body.version).to.equal(versions.get('version'));
+          expect(res.statusCode).to.equal(200);
+
+          done();
+        });
+      });
+    });
+
+    describe('/keys', function () {
+      it('sends the list of keys that are in memory', function (done) {
+        versions.app.request()
+        .get('/keys')
+        .end(function (res) {
+          var body = JSON.parse(res.body);
+
+          expect(body.keys).to.be.a('array');
+          expect(res.body).to.contain('/img/sprite.png');
+          expect(res.statusCode).to.equal(200);
+
+          done();
+        });
+      });
+    });
+
+    describe('/metrics', function () {
+      it('sends the list of metrics', function (done) {
+        versions.app.request()
+        .get('/metrics')
+        .end(function (res) {
+          var body = JSON.parse(res.body);
+
+          [
+              'requests per second'
+            , 'cache size'
+            , '404'
+            , '304'
+            , 'cache hit'
+            , 'origin server pull'
+            , 'requests'
+          ].forEach(function (prop) {
+            expect(body).to.have.property(prop);
+          });
+
+          expect(res.statusCode).to.equal(200);
+
+          done();
+        });
+      });
+    });
+
+    describe('/inspect', function () {
+      it('sends the matched item from the cache for inspection', function (done) {
+        versions.app.request()
+        .get('/inspect?key='+ escape('#/img/sprite.png'))
+        .end(function (res) {
+          expect(res.body).to.contain('/img/sprite.png');
+          expect(res.body).to.contain('Content-Length');
+          expect(res.body).to.contain('Content-Type');
+          expect(res.body).to.contain('Last-Modified');
+          expect(res.statusCode).to.equal(200);
+
+          done();
+        });
+      });
+
+      it('sends a failed message if the key does not exist', function (done) {
+        versions.app.request()
+        .get('/inspect?key='+ escape('adfaj;fjasd;flakdjs;'))
+        .end(function (res) {
+          expect(res.body).to.contain('Failed to find the requested key');
+          expect(res.statusCode).to.equal(200);
+
+          done();
+        });
+      });
+    });
+
+    describe('/flush', function () {
+      it('flushes the complete in memory cache', function (done) {
+        expect(versions.cache.length).to.be.above(0);
+
+        versions.app.request()
+        .get('/flush')
+        .end(function (res) {
+          expect(res.body).to.contain('OK');
+          expect(res.statusCode).to.equal(200);
+          expect(versions.cache.length).to.equal(0);
+
+          done();
+        });
+      });
+    });
+  });
+
+  describe('.layer(versioning)', function () {
+    it('removes the /versions:<what ever>/ path', function (done) {
+      versions.app.request()
+      .get('/versions:0.0.0/index.js')
+      .end(function (res) {
+        var content = res.body;
+
+        versions.app.request()
+        .get('/index.js')
+        .end(function (res) {
+          expect(res.body).to.equal(content);
+          expect(res.statusCode).to.equal(200);
+
+          done();
+        });
+      });
+    });
+  });
 
   after(function () {
     versions.end();

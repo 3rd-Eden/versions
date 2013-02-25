@@ -2,7 +2,7 @@
 
 exports.collect = function collect(versions) {
   var metrics = Object.create(null, {
-    'request per sec': {
+    'requests per second': {
       get: function requests() {
         var seconds = ((Date.now() - start) / 1000).toFixed(0)
           , persec = (this.requests / seconds).toFixed(2);
