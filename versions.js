@@ -3,8 +3,16 @@
 var EventEmitter = require('events').EventEmitter
   , Expirable = require('Expireable')
   , Logger = require('devnull')
+  , zlib = require('zlib')
   , path = require('path');
 
+/**
+ * Versions is simple dedicated static server, it does it best to ensure that
+ * all static files are cached properly.
+ *
+ * @constructor
+ * @api public
+ */
 function Versions() {
   this.config = Object.create(null);
 
@@ -47,6 +55,14 @@ Versions.prototype.version = require('./package.json').version;
  * @api public
  */
 Versions.prototype.parse = require('ms');
+
+/**
+ * Request.. Sends requests.
+ *
+ * @type {Function}
+ * @api public
+ */
+Versions.prototype.request = require('request');
 
 /**
  * These values need to be converted automatically using the `Versions#parse`
@@ -145,6 +161,8 @@ Versions.prototype.listen = function listen(port, callback) {
   this.server.listen(this.get('port'), function listening(err) {
     this.emit('listening', err);
   }.bind(this));
+
+  return this;
 };
 
 /**
@@ -167,6 +185,91 @@ Versions.prototype.initialize = function initialize(type) {
     this.sync();
   }
 
+  return this;
+};
+
+/**
+ * Writes a cached response.
+ *
+ * @param {Request} req HTTP server request
+ * @param {Response} res HTTP server response
+ * @param {Object} data the stuff that we need to write
+ * @api private
+ */
+Versions.prototype.write = function write(req, res, data) {
+  var age = this.get('max age')
+    , body = data.buffer;
+
+  // Check if we have a gzip version of the content
+  if (this.allows('gzip', req) && 'gzip' in data) {
+    res.setHeader('Content-Encoding', 'gzip');
+    body = data.gzip;
+  }
+
+  res.setHeader('Expires', new Date(Date.now() + age).toUTCString());
+  res.setHeader('Cache-Control', 'max-age='+ age +', public');
+  res.setHeader('Last-Modified', data.lastModified);
+  res.setHeader('Content-Type', data.contentType);
+  res.setHeader('Content-Length', body.length);
+
+  res.end(body);
+  return this;
+};
+
+/**
+ * Checks if the client allows `x` based on the details from the given
+ * request.
+ *
+ * @param {String} what What do we need to test for
+ * @param {Request} req HTTP server request
+ * @returns {Boolean}
+ * @api private
+ */
+Versions.prototype.allows = function supports(what, req) {
+  var headers = req.headers;
+
+  switch (what) {
+    // Does the connected browser support gzip?
+    case 'gzip':
+      return !!~(headers['accept-encoding'] || '').toLowerCase().indexOf('gzip');
+
+    // Do we allow this extension to be served from our server?
+    case 'extension':
+      req.extension = req.extension || path.extname(req.url);
+
+      // Don't accept queries without file extensions and ignore blacklisted
+      // extensions
+      return req.extension !== ''
+        && !~this.get('blacklisted extensions').indexOf(req.extension);
+
+    // Does this request allow 304 requests?
+    case '304':
+      // Only allow 304's on GET requests the with the correct headers
+      // @TODO check for the freshness of the content
+      return req.method === 'GET'
+        && (req.headers['if-none-match'] || req.headers['if-modified-since']);
+
+    default:
+      return false;
+  }
+};
+
+/**
+ * Compress the contents.
+ *
+ * @param {String} type Content-Type
+ * @param {Mixed} data content that needs to be compressed
+ * @param {Function} callback
+ * @api private
+ */
+Versions.prototype.compress = function compress(type, data, callback) {
+  // Only these types of content should be gzipped.
+  if (!/json|text|javascript/.test(type || '')) {
+    process.nextTick(callback);
+    return exports;
+  }
+
+  zlib.gzip(data, callback);
   return this;
 };
 
@@ -335,21 +438,51 @@ Versions.prototype.connect = function connect(server, options) {
   return new Versions.Client(this, server, options);
 };
 
-Versions.prototype.end = function () {
+/**
+ * Clean up all internal connections and references.
+ *
+ * @param {Function} callback
+ * @api public
+ */
+Versions.prototype.end = function (callback) {
+  callback = callback || noop;
+
+  // Shut down the redis connections
   if ('connections' in this) {
     Object.keys(this.connections).forEach(function each(key) {
       this.connections[key].end();
     }, this);
   }
+
+  // Kill our expirable module
+  if ('cache' in this) {
+    this.cache.destroy();
+  }
+
+  // Nuke all the servers
+  if ('server' in this) {
+    this.server.close(callback);
+  } else {
+    process.nextTick(callback);
+  }
 };
 
 /**
- * Lazy load the Client instance.
+ * Lazy load the Client instance. This is done at `Versions#connect`
+ *
+ * @private
  */
 Object.defineProperty(Versions, 'Client', {
   get: function get() {
     return require('./client');
   }
 });
+
+/**
+ * Simple callback fallback
+ *
+ * @private
+ */
+function noop() {}
 
 module.exports = new Versions();

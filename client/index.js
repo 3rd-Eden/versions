@@ -37,12 +37,17 @@ function Sync(versions, server, options) {
  *   versions.on('error', function error() { .. });
  *
  * And listen to events from the versions instance, like configuration changes
- * etc. Also proxy the logger so we don't need to setup our own logger.
+ * etc.
+ *
+ * Proxy the logger so we don't need to setup our own logger.
+ *
+ * Proxy the request library as it might be needed for syncing purposes if the
+ * suggested Redis backend is not used.
  *
  * @type {Function}
  * @api public
  */
-['on', 'logger'].forEach(function proxy(api) {
+['on', 'logger', 'request'].forEach(function proxy(api) {
   Object.defineProperty(Sync.prototype, api, {
     get: function get() {
       return this.versions[api];
@@ -109,8 +114,8 @@ Sync.prototype.set = function set(key, value) {
  */
 Sync.prototype.initialize = function initialize() {
   var url = this.server + '/version'
-    , self = this
-    , request;
+    , request = this.request
+    , self = this;
 
   // If we have authorization set, add the correct param so our request doesn't
   // fail like a mofo.
@@ -147,7 +152,6 @@ Sync.prototype.initialize = function initialize() {
     // We need to fetch our configuration from redis and merge it with our own
     // to ensure that we have an up to date version number internally.
   } else if (!this.get('redis')) {
-    request = this.request = this.request || require('request');
     theySeeMePolling();
   }
 };
@@ -172,9 +176,7 @@ Sync.prototype.version = function version(number, callback) {
   // fail like a mofo.
   if (this.get('auth')) url += '?auth='+ this.get('auth');
 
-  // Lazy load the require library
-  this.request = this.request || require('request');
-  this.require('request')({
+  this.request({
       uri: url
     , method: 'PUT'
     , json: { version: number }
@@ -191,7 +193,7 @@ Sync.prototype.version = function version(number, callback) {
 };
 
 /**
- * Adds a new server alias
+ * Adds a new server alias.
  *
  * @param {String} node Domain name
  * @api private
@@ -204,13 +206,14 @@ Sync.prototype.alias = function alias(node) {
 /**
  * Destroy everything. Fire ze missles.
  *
+ * @param {Function} callback
  * @api private
  */
-Sync.prototype.end = function end() {
+Sync.prototype.end = function end(callback) {
   if (this.polling) clearTimeout(this.polling);
-
-  this.versions.end();
   this.destroyed = true;
+
+  this.versions.end(callback);
 };
 
 /**
