@@ -157,10 +157,7 @@ Sync.prototype.initialize = function initialize() {
 
   // Determin which kind of syncing we are using, are using our Redis backend or
   // just plain ol HTTP.
-  if (this.versions.sync()) {
-    // We need to fetch our configuration from redis and merge it with our own
-    // to ensure that we have an up to date version number internally.
-  } else if (!this.get('redis')) {
+  if (!this.versions.sync()) {
     theySeeMePolling();
   }
 };

@@ -1,5 +1,5 @@
 /*global portnumbers, escape */
-describe.only('versions.connect() & version() config sync', function () {
+describe('versions.connect() & version() config sync', function () {
   'use strict';
 
   var chai = require('chai')

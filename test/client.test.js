@@ -12,7 +12,6 @@ describe('versions.connect()', function () {
     , api = v.connect('http://localhost:8080');
 
   it('should proxy some methods back to the versions instance', function () {
-    expect(api.on).to.equal(v.on);
     expect(api.logger).to.equal(v.logger);
     expect(api.request).to.equal(v.request);
   });

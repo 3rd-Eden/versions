@@ -89,7 +89,7 @@ describe('versions()', function () {
 
       // Do a source code comparison, function === will not work for closures
       var handle = v.app.stack.pop().handle;
-      expect(v.connect.responseTime().toString()).to.equal(handle.toString());
+      expect(v.connectjs.responseTime().toString()).to.equal(handle.toString());
     });
 
     it('configures middleware when an option is supplied', function (done) {
