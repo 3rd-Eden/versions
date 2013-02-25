@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "chai": "1.5.x",
-    "mocha": "1.8.x"
+    "mocha": "1.8.x",
+    "redis": "~0.8.2"
   }
 }

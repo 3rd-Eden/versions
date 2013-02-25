@@ -1,3 +1,4 @@
+/*global portnumbers, escape */
 describe('version.layer() integration', function () {
   'use strict';
 

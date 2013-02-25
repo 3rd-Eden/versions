@@ -295,4 +295,8 @@ describe('versions()', function () {
       expect(versions.get('expire internal cache')).to.equal(61200000);
     });
   });
+
+  after(function () {
+    versions.end();
+  });
 });

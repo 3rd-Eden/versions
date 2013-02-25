@@ -114,8 +114,8 @@ Versions.prototype.read = function read(path) {
  */
 Versions.prototype.layer = function layer(name, options) {
   // This is actually a connect middleware
-  if (name in this.connect) {
-    this.app.use(this.connect[name](arguments[1], arguments[2]));
+  if (name in this.connectjs) {
+    this.app.use(this.connectjs[name](arguments[1], arguments[2]));
     return this;
   }
 
@@ -198,8 +198,8 @@ Versions.prototype.initialize = function initialize(type) {
   }
 
   // Setup our middleware handlers.
-  this.connect = require('connect');
-  this.app = this.connect();
+  this.connectjs = require('connect');
+  this.app = this.connectjs();
 
   // Prepare our cache and Metrics.
   this.cache = new Expirable(this.get('expire internal cache'));
@@ -348,7 +348,9 @@ Versions.prototype.set = function set(key, to, emit) {
     this.config[key] = to;
   }
 
-  return emit ? this.emit('change:'+ key, from, to) : this;
+  // Emit changes if needed
+  if (emit) this.emit('change:'+ key, from, to);
+  return this;
 };
 
 /**
@@ -366,7 +368,7 @@ Versions.prototype.sync = function sync() {
       , pub, sub;
 
     // Generate the Redis connections
-    this.connections = this.versions.factory();
+    this.connections = this.factory();
     sub = this.connections.sub;
     pub = this.connections.pup;
 
@@ -414,13 +416,21 @@ Versions.prototype.sync = function sync() {
  */
 Versions.prototype.factory = function factory() {
   var config = this.get('redis')
-    , redis = require('redis');
+    , redis = require('redis')
+    , self = this;
 
   return ['pub', 'sub'].reduce(function create(conn, type) {
     var client = conn[type] = redis.createClient(config.port, config.host);
 
     // Optional connection authorization
     if ('auth' in config) client.auth();
+
+    // Setup an error listener so we know when things go FUBAR
+    client.on('error', function error(err) {
+      self.logger.error('[versions] The %s connection received an error', type);
+      self.logger.error('[versions]', err);
+    });
+
     return conn;
   }, {});
 };
