@@ -1,4 +1,4 @@
-describe.only('versions.connect()', function () {
+describe('versions.connect()', function () {
   'use strict';
 
   var versions = require('../')

@@ -167,6 +167,7 @@ Versions.prototype.listen = function listen(port, callback) {
   // Configure the middleware
   this.layer('responseTime');
   this.layer('initialize');
+  this.layer('versioning');
   this.layer('conditional');
   this.layer('compress');
   this.layer('memorize');

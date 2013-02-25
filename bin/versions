@@ -2,7 +2,7 @@
 
 var version = require('../package.json').version;
 
-require('../').path('../').cache('10 hours').listen(8081, function (err) {
+require('../').clone().path('../').lifetime('10 hours').listen(8081, function (err) {
   if (!err) {
     return console.log('[versions] Started versions/'+ version, 'on port 8081');
   }

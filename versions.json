@@ -8,10 +8,7 @@
   "log level": "log",
   "version": "0.0.0",
   "sync": false,
-  "origin servers": [
-    { "url": "https://www.nodejitsu.com", "id": "home" },
-    { "url": "https://webops.nodejitsu.com", "id": "webops" }
-  ],
+  "origin servers": [],
   "port": 8080,
   "aliases": []
 }

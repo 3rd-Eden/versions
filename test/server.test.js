@@ -1,7 +1,7 @@
 describe('versions()', function () {
   'use strict';
 
-  var versions = require('../')
+  var versions = require('../').clone()
     , chai = require('chai')
     , expect = chai.expect;
 
