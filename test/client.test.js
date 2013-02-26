@@ -1,3 +1,4 @@
+/*global portnumbers, escape */
 describe('versions.connect()', function () {
   'use strict';
 
@@ -8,12 +9,24 @@ describe('versions.connect()', function () {
   chai.Assertion.includeStack = true;
 
   // Set up the default client interface.
-  var v = versions.clone()
-    , api = v.connect('http://localhost:8080');
+  var server = versions.clone().listen(8080)
+    , api = versions.clone().connect('http://localhost:8080');
 
-  it('should proxy some methods back to the versions instance', function () {
-    expect(api.logger).to.equal(v.logger);
-    expect(api.request).to.equal(v.request);
+  describe('construction', function () {
+    it('should proxy some methods back to the versions instance', function () {
+      [
+          'get', 'set'
+        , 'on', 'once', 'removeListener', 'removeAllListeners', 'emit'
+      ].forEach(function (method) {
+        expect(api[method]).to.be.a('function');
+      });
+    });
+
+    it('proxies methods', function () {
+      ['logger', 'request'].forEach(function (prop) {
+        expect(api).to.have.property(prop);
+      });
+    });
   });
 
   describe('#get', function () {
@@ -64,7 +77,8 @@ describe('versions.connect()', function () {
     });
   });
 
-  after(function () {
-    api.end();
+  after(function (done) {
+    server.end();
+    api.end(done);
   });
 });

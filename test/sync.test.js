@@ -83,9 +83,9 @@ describe('versions.connect() & version() config sync', function () {
       api.version('2.2.2');
     });
 
-    after(function () {
+    after(function (done) {
       versions.end();
-      api.end();
+      api.end(done);
     });
   });
 });
