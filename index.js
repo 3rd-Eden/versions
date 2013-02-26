@@ -205,11 +205,8 @@ Versions.prototype.initialize = function initialize(type) {
   this.cache = new Expirable(this.get('expire internal cache'));
   this.metrics = require('./measure').collect(this);
 
-  // Do we need to sync?
-  if (this.get('sync') && this.get('redis')) {
-    this.sync();
-  }
-
+  // Setup syncing if provided
+  this.sync();
   return this;
 };
 
@@ -360,7 +357,7 @@ Versions.prototype.set = function set(key, to, emit) {
  * @api public
  */
 Versions.prototype.sync = function sync() {
-  if (this.get('redis')) {
+  if (this.get('redis') && this.get('sync')) {
     if (this.connections) return false;
 
     var namespace = this.get('redis').namespace || 'versions'
