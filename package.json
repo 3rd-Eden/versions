@@ -7,7 +7,7 @@
     "start": "bin/versions",
     "test": "./node_modules/.bin/mocha $(shell find test -name '*.test.js')"
   },
-  "repository": "",
+  "repository": "https://github.com/3rd-Eden/versions",
   "keywords": [
     "cdn",
     "content",
@@ -39,6 +39,6 @@
   "devDependencies": {
     "chai": "1.5.x",
     "mocha": "1.8.x",
-    "redis": "~0.8.2"
+    "redis": "0.8.x"
   }
 }
