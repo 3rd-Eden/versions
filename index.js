@@ -514,10 +514,10 @@ Versions.prototype.clone = function clone() {
   var version = new Versions()
     , config = JSON.parse(JSON.stringify(this.config));
 
-  // Merge in the configuration
+  // Merge in the configuration, silently
   Object.keys(config).forEach(function merge(key) {
-    this.set(key, config[key]);
-  }, version);
+    version.set(key, config[key], true);
+  });
 
   return version;
 };
