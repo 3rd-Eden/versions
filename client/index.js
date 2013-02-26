@@ -31,15 +31,8 @@ function Sync(versions, server, options) {
 }
 
 /**
- * Proxy the Eventmitter#on method of the server so people can do:
- *
- *   var versions = require('versions').connect(server);
- *   versions.on('error', function error() { .. });
- *
- * Proxy the logger so we don't need to setup our own logger.
- *
- * Proxy the request library as it might be needed for syncing purposes if the
- * suggested Redis backend is not used.
+ * Generate proxy properties that we can re-use form our `versions` instance.
+ * This saves us some extra configuration steps.
  *
  * @type {Function}
  * @api public
@@ -50,6 +43,24 @@ function Sync(versions, server, options) {
       return this.versions[api];
     }
   });
+});
+
+/**
+ * Generate proxy methods for API's that we want to re-use from our `versions`
+ * instance. These wrapped API's will return the proper `this` value by having
+ * them point to Sync instead of Versions.
+ *
+ * @type {Function}
+ * @api public
+ */
+[
+    'get', 'set'
+  , 'on', 'once', 'removeListener', 'removeAllListeners', 'emit'
+].forEach(function each(api) {
+  Sync.prototype[api] = function proxy() {
+    var res = this.versions[api].apply(this.versions, arguments);
+    return res === this.versions ? this : res;
+  };
 });
 
 /**
@@ -81,42 +92,6 @@ Sync.prototype.prefix = function prefix(server) {
 };
 
 /**
- * Simple wrapper around the configuration. By adding this wrapper we can easily
- * override one simple method of our client interface in order to support
- * fetching the configuration resources from a different server/origin.
- *
- * @param {String} config Name of the configuration key
- * @returns {Mixed}
- * @api private
- */
-Sync.prototype.get = function get(config) {
-  return this.versions.get(config);
-};
-
-/**
- * Same as above.
- *
- * @param {String} key
- * @param {Mixed} value
- * @param {Boolean} emit
- * @api private
- */
-Sync.prototype.set = function set(key, value, emit) {
-  this.versions.set(key, value, emit);
-  return this;
-};
-
-/**
- * Proxy the events from the Versions instance to the client.
- *
- * @api public
- */
-Sync.prototype.on = function on() {
-  this.versions.on.apply(this.versions, arguments);
-  return this;
-};
-
-/**
  * Initialize the client.
  *
  * @api private
@@ -143,14 +118,25 @@ Sync.prototype.initialize = function initialize() {
       if (self.destroyed) return; // someone ended the connection
 
       if (err || origin.statusCode !== 200) {
+        if (err) self.logger.error('HTTP sync request resulted in an error', err);
+        else self.logger.error('Invalid statusCode (%s) returned', origin.statusCode);
+
         return self.polling = setTimeout(theySeeMePolling, self.interval);
       }
 
       // Parse the shit
       try { body = JSON.parse(body); }
-      catch (e) {}
+      catch (e) {
+        self.logger.error('Failed to parse the HTTP response', body);
+      }
 
-      if (body.version) self.set('version', body.version);
+      if (body.version) {
+        var prev = self.get('version');
+
+        self.emit('sync:version', body.version, prev);
+        self.set('version', body.version);
+      }
+
       self.polling = setTimeout(theySeeMePolling, self.interval);
     });
   }
@@ -158,6 +144,7 @@ Sync.prototype.initialize = function initialize() {
   // Determin which kind of syncing we are using, are using our Redis backend or
   // just plain ol HTTP.
   if (!this.versions.sync()) {
+    this.logger.debug('They see me polling, they hatin');
     theySeeMePolling();
   }
 };
