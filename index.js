@@ -56,6 +56,14 @@ Versions.prototype.__proto__ = EventEmitter.prototype;
 Versions.prototype.version = require('./package.json').version;
 
 /**
+ * Async helper.
+ *
+ * @type {Object}
+ * @api public
+ */
+Versions.prototype.async = require('./async');
+
+/**
  * Duration conversion parser.
  *
  * @param {String} ms The string that needs to be parsed
