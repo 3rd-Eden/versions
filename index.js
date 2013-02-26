@@ -435,7 +435,7 @@ Versions.prototype.factory = function factory() {
     var client = conn[type] = redis.createClient(config.port, config.host);
 
     // Optional connection authorization
-    if ('auth' in config) client.auth();
+    if ('auth' in config) client.auth(config.auth);
 
     // Setup an error listener so we know when things go FUBAR
     client.on('error', function error(err) {
