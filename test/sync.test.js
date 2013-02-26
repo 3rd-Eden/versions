@@ -8,25 +8,18 @@ describe('versions.connect() & version() config sync', function () {
   chai.Assertion.includeStack = true;
 
   describe('redis', function () {
-    var v = require('../')
-      , versions = v.clone()
-      , port = portnumbers
-      , redis = {
-            host: 'localhost'
-          , port: 6379
-        };
+    var api, versions, port, redis = {
+        host: 'localhost'
+      , port: 6379
+    };
 
-    // Setup our Redis credentials
-    versions
-      .set('redis', redis)
-      .set('sync', true)
-      .listen(port);
+    before(function () {
+      var v = require('../');
 
-    // Connect the client with the server
-    var api = v.clone()
-      .set('redis', redis)
-      .set('sync', true)
-      .connect('http://localhost:'+ port);
+      port = portnumbers;
+      versions = v.clone().set('redis', redis).set('sync', true).listen(port);
+      api = v.clone().set('redis', redis).set('sync', true).connect('http://localhost:'+ port);
+    });
 
     it('propagates the version change from the server to the client', function (done) {
       api.once('sync:version', function (to) {
@@ -53,16 +46,16 @@ describe('versions.connect() & version() config sync', function () {
   });
 
   describe('http', function () {
-    var v = require('../')
-      , versions = v.clone()
-      , port = portnumbers;
+    var api, versions, port;
 
-    // Setup our Redis credentials
-    versions.set('sync', true).listen(port);
+    before(function () {
+      var v = require('../');
 
-    // Connect the client with the server
-    var api = v.clone().set('sync', true).connect('http://localhost:'+ port, {
-      interval: '1 second'
+      port = portnumbers;
+      versions = v.clone().set('sync', true).listen(port);
+      api = v.clone().set('sync', true).connect('http://localhost:'+ port, {
+        interval: '1 second'
+      });
     });
 
     it('propagates the version change from the server to the client', function (done) {

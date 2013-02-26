@@ -2,17 +2,19 @@
 describe('version.layer() integration', function () {
   'use strict';
 
-  var versions = require('../').clone().path('../').listen(portnumbers)
-    , chai = require('chai')
-    , expect = chai.expect;
+  var chai = require('chai')
+    , expect = chai.expect
+    , versions;
 
   chai.Assertion.includeStack = true;
 
-  // Add nodejitsu as home server
-  versions.set('origin servers', [{
-    "url": "https://www.nodejitsu.com",
-    "id": "home"
-  }]);
+  before(function () {
+    versions = require('../').clone().path('../').listen(portnumbers);
+    versions.set('origin servers', [{
+      "url": "https://www.nodejitsu.com",
+      "id": "home"
+    }]);
+  });
 
   describe('.layer(responseTime)', function () {
     it('should set a X-Response-Time header', function (done) {
@@ -262,7 +264,9 @@ describe('version.layer() integration', function () {
   });
 
   describe('.layer(rest)', function () {
-    versions.set('auth', 'foobar');
+    before(function () {
+      versions.set('auth', 'foobar');
+    });
 
     describe('authorization', function () {
       it('ignores requests when the auth key is set', function (done) {

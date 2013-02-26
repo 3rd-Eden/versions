@@ -2,15 +2,19 @@
 describe('versions.connect()', function () {
   'use strict';
 
-  var versions = require('../')
-    , chai = require('chai')
-    , expect = chai.expect;
+  var chai = require('chai')
+    , expect = chai.expect
+    , server
+    , api;
 
   chai.Assertion.includeStack = true;
 
   // Set up the default client interface.
-  var server = versions.clone().listen(8080)
-    , api = versions.clone().connect('http://localhost:8080');
+  before(function () {
+    var versions = require('../');
+    server = versions.clone().listen(8080);
+    api = versions.clone().connect('http://localhost:8080');
+  });
 
   describe('construction', function () {
     it('should proxy some methods back to the versions instance', function () {

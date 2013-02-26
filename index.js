@@ -8,6 +8,14 @@ var EventEmitter = require('events').EventEmitter
   , ms = require('ms');
 
 /**
+ * Unique identifier for the server.
+ *
+ * @type {Number}
+ * @private
+ */
+var id = 0;
+
+/**
  * Versions is simple dedicated static server, it does it best to ensure that
  * all static files are cached properly.
  *
@@ -16,6 +24,7 @@ var EventEmitter = require('events').EventEmitter
  */
 function Versions() {
   this.config = Object.create(null);
+  this.id = [process.pid, id, Date.now()].join('-');
 
   // Default the root of the module to the folder that required this module.
   this.set('root', path.dirname(module.parent.filename));

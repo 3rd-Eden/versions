@@ -1,11 +1,16 @@
 describe('versions()', function () {
   'use strict';
 
-  var versions = require('../').clone()
-    , chai = require('chai')
-    , expect = chai.expect;
+  var chai = require('chai')
+    , path = require('path')
+    , expect = chai.expect
+    , versions;
 
   chai.Assertion.includeStack = true;
+
+  before(function () {
+    versions = require('../').clone();
+  });
 
   it('reads in our default versions.json', function () {
     var yayson = require('../versions.json');
@@ -35,8 +40,9 @@ describe('versions()', function () {
   });
 
   describe('#read', function () {
-    versions.logger.notification = 8;
-    var path = require('path');
+    before(function () {
+      versions.logger.notification = 8;
+    });
 
     it('silently ignores files that do not exist', function () {
       versions.logger.on('error', function () {
