@@ -148,6 +148,49 @@ describe('versions()', function () {
     it('emits a listening event');
   });
 
+  describe('#async', function () {
+    var versions;
+    before(function () {
+      versions = require('../').clone();
+      versions.logger.notification = 8;
+    });
+
+    after(function (done) {
+      versions.end(done);
+    });
+
+    it('selects the fastest result using .fastest()', function (done) {
+      versions.async.fastest(
+        [300, 200, 100, 40, 900, 110]
+      , function (count, cb) {
+        setTimeout(function called() {
+          cb(null, count);
+        }, count);
+      }, function (err, count) {
+        expect(err).to.not.be.instanceof(Error);
+        expect(count).to.equal(40);
+
+        done();
+      });
+    });
+
+    it('selects the first result without an error using .failover()', function (done) {
+      versions.async.failover(
+        [new Error('I'), new Error('Should'), new Error('Die'), 'hard', new Error('now')]
+      , function (item, cb) {
+        process.nextTick(function async() {
+          if (item instanceof Error) return cb(item);
+          return cb(null, item);
+        });
+      }, function (err, item) {
+        expect(err).to.not.be.instanceof(Error);
+        expect(item).to.equal('hard');
+
+        done();
+      });
+    });
+  });
+
   describe('#initialize', function () {
     var versions;
     before(function () {
