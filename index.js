@@ -431,6 +431,8 @@ Versions.prototype.sync = function sync() {
     // Start listening for configuration changes so we can publish them across
     // the cluster.
     ['version', 'aliases'].forEach(function forEach(key) {
+      pub.hmset(namespace, self.config);
+
       self.on('change:'+ key, function change(from, to) {
         pub.publish(namespace, JSON.stringify({
             key: key

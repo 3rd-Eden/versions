@@ -109,9 +109,10 @@ describe('versions.connect()', function () {
     });
 
     it('should prefix the server', function () {
-      var tag = api.tag('/css/base.css');
-
-      expect(tag).to.equal('http://lolcathost:'+ port +'/versions:0.0.0/css/base.css');
+      for (var i = 0; i < 100; i++) {
+        var tag = api.tag('/css/base.css');
+        expect(tag).to.equal('http://lolcathost:'+ port +'/versions:0.0.0/css/base.css');
+      }
     });
   });
 
