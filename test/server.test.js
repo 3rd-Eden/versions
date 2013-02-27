@@ -3,31 +3,46 @@ describe('versions()', function () {
 
   var chai = require('chai')
     , path = require('path')
-    , expect = chai.expect
-    , versions;
+    , expect = chai.expect;
 
   chai.Assertion.includeStack = true;
 
-  before(function () {
-    versions = require('../').clone();
-  });
+  describe('initialization', function () {
+    var versions;
+    before(function () {
+      versions = require('../').clone();
+    });
 
-  it('reads in our default versions.json', function () {
-    var yayson = require('../versions.json');
+    after(function (done) {
+      versions.end(done);
+    });
 
-    expect(versions.get('log level')).to.equal(yayson['log level']);
-    expect(versions.get('cors')).to.equal(yayson.cors);
-  });
+    it('reads in our default versions.json', function () {
+      var yayson = require('../versions.json');
 
-  it('inherts from the EventEmitter', function () {
-    expect(versions).to.be.instanceOf(require('events').EventEmitter);
-  });
+      expect(versions.get('log level')).to.equal(yayson['log level']);
+      expect(versions.get('cors')).to.equal(yayson.cors);
+    });
 
-  it('exposes the current version number', function () {
-    expect(versions.version).to.equal(require('../package.json').version);
+    it('inherts from the EventEmitter', function () {
+      expect(versions).to.be.instanceOf(require('events').EventEmitter);
+    });
+
+    it('exposes the current version number', function () {
+      expect(versions.version).to.equal(require('../package.json').version);
+    });
   });
 
   describe("#parse", function () {
+    var versions;
+    before(function () {
+      versions = require('../').clone();
+    });
+
+    after(function (done) {
+      versions.end(done);
+    });
+
     it('parsers numberic values', function () {
       expect(versions.parse(1000)).to.equal(1000);
       expect(versions.parse('1000')).to.equal(1000);
@@ -40,8 +55,14 @@ describe('versions()', function () {
   });
 
   describe('#read', function () {
+    var versions;
     before(function () {
+      versions = require('../').clone();
       versions.logger.notification = 8;
+    });
+
+    after(function (done) {
+      versions.end(done);
     });
 
     it('silently ignores files that do not exist', function () {
@@ -71,37 +92,37 @@ describe('versions()', function () {
   });
 
   describe('#layer', function () {
-    var v;
-
-    beforeEach(function generate() {
-      v = versions.clone();
-      v.initialize('server');
+    var versions;
+    before(function () {
+      versions = require('../').clone();
+      versions.logger.notification = 8;
+      versions.initialize('server');
     });
 
-    afterEach(function end(done) {
-      v.end(done);
+    after(function (done) {
+      versions.end(done);
     });
 
     it('loads in our own middleware', function (done) {
-      v.once('debug:initialize', done);
+      versions.once('debug:initialize', done);
 
       // The debug module emits the debug:initialize so we know when that is
       // called, we have succesfully loaded our shizzle
-      v.layer('debug');
+      versions.layer('debug');
     });
 
     it('it automatically discovers connect modules', function () {
-      v.layer('responseTime');
+      versions.layer('responseTime');
 
       // Do a source code comparison, function === will not work for closures
-      var handle = v.app.stack.pop().handle;
-      expect(v.connectjs.responseTime().toString()).to.equal(handle.toString());
+      var handle = versions.app.stack.pop().handle;
+      expect(versions.connectjs.responseTime().toString()).to.equal(handle.toString());
     });
 
     it('configures middleware when an option is supplied', function (done) {
       var args = 'foo';
 
-      v.on('debug:initialize', function (data) {
+      versions.on('debug:initialize', function (data) {
         expect(data).to.equal(args);
         done();
       }).layer('debug', args);
@@ -111,6 +132,16 @@ describe('versions()', function () {
   });
 
   describe('#listen', function () {
+    var versions;
+    before(function () {
+      versions = require('../').clone();
+      versions.logger.notification = 8;
+    });
+
+    after(function (done) {
+      versions.end(done);
+    });
+
     it('sets a custom port number if supplied as argument');
     it('adds middleware layers');
     it('sets up the HTTP server');
@@ -118,6 +149,16 @@ describe('versions()', function () {
   });
 
   describe('#initialize', function () {
+    var versions;
+    before(function () {
+      versions = require('../').clone();
+      versions.logger.notification = 8;
+    });
+
+    after(function (done) {
+      versions.end(done);
+    });
+
     it('setups & initializes our middleware handler');
     it('setups the cache');
     it('setups syncing');
@@ -125,11 +166,31 @@ describe('versions()', function () {
   });
 
   describe('#write', function () {
+    var versions;
+    before(function () {
+      versions = require('../').clone();
+      versions.logger.notification = 8;
+    });
+
+    after(function (done) {
+      versions.end(done);
+    });
+
     it('sets the correct headers');
     it('decided which content to use');
   });
 
   describe('#allows', function () {
+    var versions;
+    before(function () {
+      versions = require('../').clone();
+      versions.logger.notification = 8;
+    });
+
+    after(function (done) {
+      versions.end(done);
+    });
+
     var accept = {
       headers: {
         'if-none-match': '1313',
@@ -179,6 +240,16 @@ describe('versions()', function () {
   });
 
   describe('#compress', function () {
+    var versions;
+    before(function () {
+      versions = require('../').clone();
+      versions.logger.notification = 8;
+    });
+
+    after(function (done) {
+      versions.end(done);
+    });
+
     it('only compresses text files', function (done) {
       versions.compress('image/png', 'foo fafdaf afdsfasdf08 -8 -a8', function (err, data) {
         expect(err).to.equal(undefined);
@@ -203,6 +274,16 @@ describe('versions()', function () {
   });
 
   describe('#get', function () {
+    var versions;
+    before(function () {
+      versions = require('../').clone();
+      versions.logger.notification = 8;
+    });
+
+    after(function (done) {
+      versions.end(done);
+    });
+
     it('retrieves a value from the config', function () {
       expect(versions.get('foo bar banan')).to.equal(undefined);
       expect(versions.get('cors')).to.equal('*');
@@ -210,6 +291,16 @@ describe('versions()', function () {
   });
 
   describe('#set', function () {
+    var versions;
+    before(function () {
+      versions = require('../').clone();
+      versions.logger.notification = 8;
+    });
+
+    after(function (done) {
+      versions.end(done);
+    });
+
     it('automatically converts values', function () {
       expect(versions.get('max age')).to.not.equal(1000);
       versions.set('max age', '1 second');
@@ -280,6 +371,16 @@ describe('versions()', function () {
   });
 
   describe('configuration sugar', function () {
+    var versions;
+    before(function () {
+      versions = require('../').clone();
+      versions.logger.notification = 8;
+    });
+
+    after(function (done) {
+      versions.end(done);
+    });
+
     it('expects path() to set the directory', function () {
       expect(versions.get('directory')).to.not.equal('foo');
 
@@ -300,9 +401,5 @@ describe('versions()', function () {
       versions.expire('17 hours');
       expect(versions.get('expire internal cache')).to.equal(61200000);
     });
-  });
-
-  after(function () {
-    versions.end();
   });
 });
