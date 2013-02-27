@@ -414,7 +414,9 @@ Versions.prototype.sync = function sync() {
 
     // Setup our subscription channel so we can start listening for events.
     sub.on('message', function message(channel, data) {
-      if (channel !== namespace) return;
+      if (channel !== namespace) {
+        return self.logger.error('Received a channel that we not registered for');
+      }
 
       // Prevent invalid data to be transmitted
       try { data = JSON.parse(data); }
@@ -437,20 +439,23 @@ Versions.prototype.sync = function sync() {
     // Start listening for configuration changes so we can publish them across
     // the cluster.
     this.syncing.forEach(function forEach(key) {
-      pub.set(namespace, JSON.stringify(self.config));
-
       self.on('change:'+ key, function change(from, to) {
+        pub.set(namespace, JSON.stringify(self.config));
+
         pub.publish(namespace, JSON.stringify({
             key: key
           , value: to
           , from: from
-        }));
+        }), function stored(err) {
+          self.emit('stored:'+ key, err);
+        });
       });
     });
 
     // Retrieve the configuration from database.
     pub.get(namespace, function cloud(err, config) {
       if (err) return self.logger.warning('Could sync the initial config from the cloud');
+      if (!config) return self.logger.debug('No config in cloud');
 
       try { config = JSON.parse(config); }
       catch (e) { return self.logger.error('Failed to parse initial config'); }

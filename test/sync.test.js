@@ -15,6 +15,7 @@ describe('versions.connect() & version() config sync', function () {
 
   describe('redis', function () {
     var api, versions, port;
+    this.timeout(10000);
 
     before(function (done) {
       var v = require('../')
@@ -107,12 +108,6 @@ describe('versions.connect() & version() config sync', function () {
           expect(servers[port].get('version')).to.equal(to);
 
           if (++completed === instances) {
-            console.log(Object.keys(servers).map(function (port) {
-              var server = servers[port];
-
-              return 'server: '+ port +' has version '+ server.get('version');
-            }));
-
             Object.keys(servers).forEach(function (p) {
               var version = servers[p].get('version');
 
@@ -128,30 +123,29 @@ describe('versions.connect() & version() config sync', function () {
     });
 
     it('receives the latest config when a node is added to the cluster', function (done) {
-      console.log(Object.keys(servers).map(function (port) {
-        var server = servers[port];
+      this.timeout(10000);
 
-        return 'server: '+ port +' has version '+ server.get('version');
-      }));
+      // Give it some time to fully propagate all the changes
+      setTimeout(function() {
+        // current version number of the cluster.
+        var version = servers[port].get('version');
+        expect(version).to.equal('1.2.3');
 
-      // current version number of the cluster.
-      var version = servers[port].get('version');
-      expect(version).to.equal('1.2.3');
+        // Add a new Node.
+        var node = require('../').clone()
+          .set('version', '9.2.4')
+          .set('redis', redis).set('sync', true)
+          .listen(portnumbers);
 
-      // Add a new Node.
-      var node = require('../').clone()
-        .set('version', '9.2.4')
-        .set('redis', redis).set('sync', true)
-        .listen(portnumbers);
+        expect(node.get('version')).to.not.equal(version);
 
-      expect(node.get('version')).to.not.equal(version);
+        node.once('sync#version', function (to) {
+          expect(to).to.equal(version);
 
-      node.once('sync#version', function (to) {
-        expect(to).to.equal(version);
-
-        node.end();
-        done();
-      });
+          node.end();
+          done();
+        });
+      }, 5000);
     });
   });
 

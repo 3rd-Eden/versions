@@ -14,6 +14,9 @@ function Sync(versions, server, options) {
   options = options || {};
   if (!server) throw new Error('Missing required server argument');
 
+  // Mark that we are now an API client
+  versions.id += ':api';
+
   this.versions = versions;
   this.interval = versions.parse(options.interval || '10 seconds');
   this.server = server;
@@ -158,7 +161,11 @@ Sync.prototype.initialize = function initialize() {
  * @api public
  */
 Sync.prototype.version = function version(number, callback) {
-  callback = callback || noop;
+  var self = this;
+
+  callback = callback || function (err) {
+    self.emit('stored:version', err);
+  };
 
   if (!number) {
     number = this.get('version').split('.');
