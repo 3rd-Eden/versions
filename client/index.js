@@ -12,6 +12,7 @@ var HashRing = require('hashring');
  */
 function Sync(versions, server, options) {
   options = options || {};
+  if (!server) throw new Error('Missing required server argument');
 
   this.versions = versions;
   this.interval = versions.parse(options.interval || '10 seconds');

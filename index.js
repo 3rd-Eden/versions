@@ -22,7 +22,9 @@ var id = 0;
  * @constructor
  * @api public
  */
-function Versions() {
+function Versions(options) {
+  options = options || {};
+
   this.config = Object.create(null);
   this.id = [process.pid, id, Date.now()].join('-');
 
@@ -32,9 +34,17 @@ function Versions() {
 
   // Read in the various of configurations that we want to merge in to our own
   // configuration object.
-  this.read('../../node_modules/package.json');    // For version number
-  this.read('./versions.json');                    // For our defaults
-  this.read('../../node_modules/versions.json');   // For their defaults
+  //
+  if (!options.cloned) {
+    this.read('../../node_modules/package.json');    // For version number
+    this.read('./versions.json');                    // For our defaults
+    this.read('../../node_modules/versions.json');   // For their defaults
+  } else {
+    Object.keys(options.cloned).forEach(function merge(key) {
+      // Merge in the cloned configuration, silently
+      this.set(key, options.cloned[key], true);
+    }, this);
+  }
 
   // Now that we have fetched their details, we can see if we need to silence
   // our logger.
@@ -528,15 +538,9 @@ Versions.prototype.end = function (callback) {
  * @private
  */
 Versions.prototype.clone = function clone() {
-  var version = new Versions()
-    , config = JSON.parse(JSON.stringify(this.config));
+  var config = JSON.parse(JSON.stringify(this.config));
 
-  // Merge in the configuration, silently
-  Object.keys(config).forEach(function merge(key) {
-    version.set(key, config[key], true);
-  });
-
-  return version;
+  return new Versions({ cloned: config });
 };
 
 /**

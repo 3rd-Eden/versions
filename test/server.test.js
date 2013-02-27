@@ -91,6 +91,25 @@ describe('versions()', function () {
     });
   });
 
+  describe("#clone", function () {
+    var versions;
+    before(function () {
+      versions = require('../').clone();
+      versions.logger.notification = 8;
+    });
+
+    after(function (done) {
+      versions.end(done);
+    });
+
+    it('should generate an identical clone of the instance', function () {
+      var clone = versions.clone();
+
+      expect(clone.config).to.deep.equal(versions.config);
+      clone.end();
+    });
+  });
+
   describe('#layer', function () {
     var versions;
     before(function () {
