@@ -396,6 +396,14 @@ Versions.prototype.sync = function sync() {
     sub = this.connections.sub;
     pub = this.connections.pub;
 
+    // Start listening for the ready event of the redisClient so we can emit
+    var loaded = 0;
+    [pub, sub].forEach(function ready(client) {
+      client.once('ready', function ready() {
+        if (++loaded === 2) self.emit('sync#ready');
+      });
+    });
+
     // Setup our subscription channel so we can start listening for events.
     sub.on('message', function message(channel, data) {
       if (channel !== namespace) return;
