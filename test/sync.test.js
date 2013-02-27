@@ -26,7 +26,10 @@ describe('versions.connect() & version() config sync', function () {
 
       port = portnumbers;
       versions = v.clone().set('redis', redis).set('sync', true).listen(port);
-      api = v.clone().set('redis', redis).set('sync', true).connect('http://localhost:'+ port);
+      api = v.clone()
+        .set('redis', redis)
+        .set('sync', true)
+        .connect('http://localhost:'+ port);
 
       versions.once('sync#ready', ready);
       api.once('sync#ready', ready);
@@ -79,7 +82,11 @@ describe('versions.connect() & version() config sync', function () {
         servers[port].once('sync#ready', ready);
       }
 
-      api = v.clone().set('redis', redis).set('sync', true).connect('http://localhost:'+ port);
+      api = v.clone()
+        .set('redis', redis)
+        .set('sync', true)
+        .connect('http://localhost:'+ port);
+
       api.once('sync#ready', ready);
     });
 
@@ -100,8 +107,14 @@ describe('versions.connect() & version() config sync', function () {
           expect(servers[port].get('version')).to.equal(to);
 
           if (++completed === instances) {
-            Object.keys(servers).forEach(function (port) {
-              var version = servers[port].get('version');
+            console.log(Object.keys(servers).map(function (port) {
+              var server = servers[port];
+
+              return 'server: '+ port +' has version '+ server.get('version');
+            }));
+
+            Object.keys(servers).forEach(function (p) {
+              var version = servers[p].get('version');
 
               expect(version).to.equal('1.2.3');
             });
@@ -115,9 +128,17 @@ describe('versions.connect() & version() config sync', function () {
     });
 
     it('receives the latest config when a node is added to the cluster', function (done) {
-      var version = servers[port].get('version'); // current version number of the cluster
+      console.log(Object.keys(servers).map(function (port) {
+        var server = servers[port];
 
-      // Add a new node
+        return 'server: '+ port +' has version '+ server.get('version');
+      }));
+
+      // current version number of the cluster.
+      var version = servers[port].get('version');
+      expect(version).to.equal('1.2.3');
+
+      // Add a new Node.
       var node = require('../').clone()
         .set('redis', redis).set('sync', true)
         .set('version', '9.2.4')
