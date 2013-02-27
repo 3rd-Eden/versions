@@ -82,7 +82,7 @@ describe('versions.connect()', function () {
 
     before(function () {
       var versions = require('../');
-      port = portnumbers;
+      port = 7331;
       server = versions.clone().listen(port);
       api = versions.clone().connect('http://localhost:'+ port);
     });
@@ -108,7 +108,7 @@ describe('versions.connect()', function () {
       });
     });
 
-    it('should should prefix the server', function () {
+    it('should prefix the server', function () {
       var tag = api.tag('/css/base.css');
 
       expect(tag).to.equal('http://lolcathost:'+ port +'/versions:0.0.0/css/base.css');
