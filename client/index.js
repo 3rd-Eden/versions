@@ -38,7 +38,7 @@ function Sync(versions, server, options) {
  * @type {Function}
  * @api public
  */
-['logger', 'request'].forEach(function proxy(api) {
+['logger', 'request', 'semver'].forEach(function proxy(api) {
   Object.defineProperty(Sync.prototype, api, {
     get: function get() {
       return this.versions[api];
@@ -159,6 +159,12 @@ Sync.prototype.initialize = function initialize() {
  */
 Sync.prototype.version = function version(number, callback) {
   callback = callback || noop;
+
+  if (!number) {
+    number = this.get('version').split('.');
+    number[number.length - 1] = ++number[number.length - 1];
+    number = number.join('.');
+  }
 
   // If we are using redis, it will be pub/subbed over the connection
   this.set('version', number);

@@ -74,6 +74,14 @@ Versions.prototype.version = require('./package.json').version;
 Versions.prototype.async = require('./async');
 
 /**
+ * Semver compare
+ *
+ * @type {Object}
+ * @api public
+ */
+Versions.prototype.semver = require('semver');
+
+/**
  * Duration conversion parser.
  *
  * @param {String} ms The string that needs to be parsed
@@ -421,16 +429,14 @@ Versions.prototype.sync = function sync() {
 
       // Make sure that the value actually differs from our own implementation.
       var prev = self.get(data.key);
-      self.emit('sync:'+ data.key, data.value, prev);
-
-      if (prev === data.value) return self.logger.debug('Data already up to date');
 
       self.set(data.key, data.value, false);
+      self.emit('sync:'+ data.key, data.value, prev);
     }).subscribe(namespace);
 
     // Start listening for configuration changes so we can publish them across
     // the cluster.
-    ['version', 'aliases'].forEach(function forEach(key) {
+    this.syncing.forEach(function forEach(key) {
       pub.set(namespace, JSON.stringify(self.config));
 
       self.on('change:'+ key, function change(from, to) {
@@ -442,11 +448,32 @@ Versions.prototype.sync = function sync() {
       });
     });
 
+    // Retrieve the configuration from database.
+    pub.get(namespace, function cloud(err, config) {
+      if (err) return self.logger.warning('Could sync the initial config from the cloud');
+
+      try { config = JSON.parse(config); }
+      catch (e) { return self.logger.error('Failed to parse initial config'); }
+
+      self.syncing.forEach(function forEach(key) {
+        self.set(key, config[key], true);
+        self.emit('sync#'+ key, config[key]);
+      });
+    });
+
     return true;
   }
 
   return false;
 };
+
+/**
+ * The properties that are allowed to be synced.
+ *
+ * @type {Array}
+ * @api private
+ */
+Versions.prototype.syncing = ['version', 'aliases'];
 
 /**
  * Generate some Redis connections.

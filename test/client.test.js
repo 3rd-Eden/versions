@@ -138,4 +138,31 @@ describe('versions.connect()', function () {
       expect(api.prefix()).to.equal('http://localhost:'+ port +'/versions:0.0.0');
     });
   });
+
+  describe('#version', function () {
+    var server , port = portnumbers, api;
+
+    before(function () {
+      var versions = require('../');
+      server = versions.clone().listen(port);
+      api = versions.clone().connect('http://localhost:'+ port);
+    });
+
+    after(function (done) {
+      server.end();
+      api.end(done);
+    });
+
+    it('should bump the internal version number', function () {
+      api.version('1.3.9');
+      expect(api.get('version')).to.equal('1.3.9');
+    });
+
+    it('should increase the version patch number if no number is supplied', function () {
+      api.set('version', '1.3.9');
+      api.version();
+
+      expect(api.get('version')).to.equal('1.3.10');
+    });
+  });
 });

@@ -40,6 +40,8 @@ describe('versions.connect() & version() config sync', function () {
     it('propagates the version change from the server to the client', function (done) {
       api.once('sync:version', function (to) {
         expect(to).to.equal('3.3.3');
+        expect(api.get('version')).to.equal(to);
+
         done();
       });
 
@@ -49,6 +51,8 @@ describe('versions.connect() & version() config sync', function () {
     it('propagates the version change from the client to the server', function (done) {
       versions.once('sync:version', function (to) {
         expect(to).to.equal('2.2.2');
+        expect(versions.get('version')).to.equal(to);
+
         done();
       });
 
@@ -56,7 +60,7 @@ describe('versions.connect() & version() config sync', function () {
     });
   });
 
-  describe('redis server cluster', function () {
+  describe('server cluster (redis)', function () {
     var servers = {}
       , instances = 10
       , api, port;
@@ -87,20 +91,46 @@ describe('versions.connect() & version() config sync', function () {
       api.end(done);
     });
 
-    it('receives the latest config when a node is added to the cluster');
-
     it('propagetes the version changes through the cluster', function (done) {
       var completed = 0;
 
       Object.keys(servers).forEach(function (port) {
         servers[port].once('sync:version', function (to) {
           expect(to).to.equal('1.2.3');
+          expect(servers[port].get('version')).to.equal(to);
 
-          if (++completed === instances) done();
+          if (++completed === instances) {
+            Object.keys(servers).forEach(function (port) {
+              var version = servers[port].get('version');
+
+              expect(version).to.equal('1.2.3');
+            });
+
+            done();
+          }
         });
       });
 
       api.version('1.2.3');
+    });
+
+    it('receives the latest config when a node is added to the cluster', function (done) {
+      var version = servers[port].get('version'); // current version number of the cluster
+
+      // Add a new node
+      var node = require('../').clone()
+        .set('redis', redis).set('sync', true)
+        .set('version', '9.2.4')
+        .listen(portnumbers);
+
+      expect(node.get('version')).to.not.equal(version);
+
+      node.once('sync#version', function (to) {
+        expect(to).to.equal(version);
+
+        node.end();
+        done();
+      });
     });
   });
 
