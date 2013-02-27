@@ -195,7 +195,7 @@ describe('versions()', function () {
 
     it('selects the first result without an error using .failover()', function (done) {
       versions.async.failover(
-        [new Error('I'), new Error('Should'), new Error('Die'), 'hard', new Error('now')]
+        [new Error('I'), new Error('Should'), new Error('Die'), 'hard', new Error('now'), 'last']
       , function (item, cb) {
         process.nextTick(function async() {
           if (item instanceof Error) return cb(item);
@@ -392,6 +392,20 @@ describe('versions()', function () {
       expect(versions.get('array')).to.include(3);
       expect(versions.get('array')).to.include(4);
       expect(versions.get('array')).to.not.include(5);
+    });
+
+    it('merges arrays in the correct order', function () {
+      var origin = [
+        { url: 'https://webops.nodejitsu.com', id: 'webops' },
+        { url: 'https://www.nodejitsu.com', id: 'home' },
+        { url: 'https://raw.github.com/nodejitsu/handbook/integration', id: 'handbook' }
+      ];
+
+      versions.set('origin servers', origin);
+      versions.get('origin servers').forEach(function (server, index) {
+        expect(server.url).to.equal(origin[index].url);
+        expect(server.id).to.equal(origin[index].id);
+      });
     });
 
     it('merges objects', function () {
