@@ -140,8 +140,8 @@ describe('versions.connect() & version() config sync', function () {
 
       // Add a new Node.
       var node = require('../').clone()
-        .set('redis', redis).set('sync', true)
         .set('version', '9.2.4')
+        .set('redis', redis).set('sync', true)
         .listen(portnumbers);
 
       expect(node.get('version')).to.not.equal(version);
