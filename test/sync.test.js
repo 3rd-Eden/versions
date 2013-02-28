@@ -9,9 +9,17 @@ describe('versions.connect() & version() config sync', function () {
 
   // The actual redis server config
   var redis = {
-    host: 'localhost'
+      host: 'localhost'
     , port: 6379
   };
+
+  after(function (done) {
+    var client = require('redis').createClient(redis.port, redis.host);
+    client.flushall(function () {
+      client.end();
+      done();
+    });
+  });
 
   describe('redis', function () {
     var api, versions, port;

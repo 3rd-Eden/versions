@@ -392,11 +392,25 @@ Versions.prototype.set = function set(key, to, emit) {
  * @api public
  */
 Versions.prototype.sync = function sync() {
+  var self = this
+    , points = 0;
+
+  /**
+   * The Redis connection must pass all checkpoints before it's ready.
+   *
+   * @api private
+   */
+  function checkpoint() {
+    if (++points === 3) {
+      self.logger.debug(self.id + ' connection is fully established and linked');
+      self.emit('sync#ready');
+    }
+  }
+
   if (this.get('redis') && this.get('sync')) {
     if (this.connections) return false;
 
     var namespace = this.get('redis').namespace || 'versions'
-      , self = this
       , pub, sub;
 
     // Generate the Redis connections
@@ -405,11 +419,8 @@ Versions.prototype.sync = function sync() {
     pub = this.connections.pub;
 
     // Start listening for the ready event of the redisClient so we can emit
-    var loaded = 0;
     [pub, sub].forEach(function ready(client) {
-      client.once('ready', function ready() {
-        if (++loaded === 2) self.emit('sync#ready');
-      });
+      client.once('connect', checkpoint);
     });
 
     // Setup our subscription channel so we can start listening for events.
@@ -440,13 +451,20 @@ Versions.prototype.sync = function sync() {
     // the cluster.
     this.syncing.forEach(function forEach(key) {
       self.on('change:'+ key, function change(from, to) {
-        pub.set(namespace, JSON.stringify(self.config));
 
-        pub.publish(namespace, JSON.stringify({
+        var atomic = pub.multi();
+        atomic.set(namespace, JSON.stringify(self.config));
+        atomic.publish(namespace, JSON.stringify({
             key: key
           , value: to
           , from: from
-        }), function stored(err) {
+        }));
+
+        atomic.exec(function stored(err) {
+          if (err) {
+            return self.logger.error('Failed to sync the configuration in the cloud');
+          }
+
           self.emit('stored:'+ key, err);
         });
       });
@@ -454,6 +472,9 @@ Versions.prototype.sync = function sync() {
 
     // Retrieve the configuration from database.
     pub.get(namespace, function cloud(err, config) {
+      // Another connection check checkpoint
+      checkpoint();
+
       if (err) return self.logger.warning('Could sync the initial config from the cloud');
       if (!config) return self.logger.debug('No config in cloud');
 
