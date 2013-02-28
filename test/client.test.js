@@ -116,7 +116,7 @@ describe('versions.connect()', function () {
     });
   });
 
-  describe('#prefix', function () {
+  describe.only('#prefix', function () {
     var server , port = portnumbers, api;
 
     before(function () {
@@ -134,8 +134,17 @@ describe('versions.connect()', function () {
       expect(api.prefix('https://google.com')).to.equal('https://google.com/versions:0.0.0');
     });
 
-    it('should prifix with the default server', function () {
+    it('should prefix with the default server', function () {
       expect(api.prefix()).to.equal('http://localhost:'+ port +'/versions:0.0.0');
+    });
+
+    it('should not prefix if no server is provided', function () {
+      var client = require('../').clone().connect();
+
+      expect(client.prefix()).to.equal('');
+      expect(client.tag('/foo')).to.equal('/foo');
+
+      client.end();
     });
   });
 

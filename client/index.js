@@ -1,6 +1,7 @@
 'use strict';
 
-var HashRing = require('hashring');
+var HashRing = require('hashring')
+  , undefined;
 
 /**
  * A Versions client.
@@ -12,7 +13,7 @@ var HashRing = require('hashring');
  */
 function Sync(versions, server, options) {
   options = options || {};
-  if (!server) throw new Error('Missing required server argument');
+  server = server || '';
 
   // Mark that we are now an API client
   versions.id += ':api';
@@ -30,8 +31,8 @@ function Sync(versions, server, options) {
 
   this.hashring = new HashRing(domains);
 
-  // Setup our syncing
-  this.initialize();
+  // Setup our syncing, if we have a server
+  if (this.server) this.initialize();
 }
 
 /**
@@ -78,6 +79,7 @@ function Sync(versions, server, options) {
 Sync.prototype.tag = function tag(url) {
   var server = this.hashring.get(url);
 
+  if (!server) return url;
   return this.prefix(server) + url;
 };
 
@@ -92,6 +94,8 @@ Sync.prototype.tag = function tag(url) {
 Sync.prototype.prefix = function prefix(server) {
   server = server || this.server;
 
+  // If we don't have a server, don't prefix it
+  if (!server) return '';
   return server +'/versions:'+ this.get('version');
 };
 
