@@ -383,19 +383,18 @@ Versions.prototype.merge = function merge(target, additional) {
   var result = target
     , undefined;
 
-  // Iterate over Arrays
-  if (target.length === undefined && typeof target !== 'number') {
+  if (Array.isArray(target)) {
+    this.forEach(additional, function arrayForEach(index) {
+      if (JSON.stringify(target).indexOf(JSON.stringify(additional[index])) === -1) {
+        result.push(additional[index]);
+      }
+    });
+  } else if ('object' === typeof target) {
     this.forEach(additional, function objectForEach(key, value) {
       if (target[key] === undefined) {
         result[key] = value;
       } else {
         result[key] = merge(target[key], additional[key]);
-      }
-    });
-  } else if (target.length > 0 && typeof target !== 'string') {
-    this.forEach(additional, function arrayForEach(index) {
-      if (JSON.stringify(target).indexOf(JSON.stringify(additional[index])) === -1) {
-        result.push(additional[index]);
       }
     });
   } else {
