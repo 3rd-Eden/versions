@@ -1,18 +1,17 @@
 # versions
 
-Versions is a simple but powerful node module that allows you to create a
+Versions is a simple but powerful node.js module that allows you to create a
 flexible static server or content delivery network. Serving static assets is a
 pain in Node, it's not something it focuses on and everybody advises you to
-setup a static server using NGINX or implement a cache proxying using varnish or
-squid. The biggest advantage that these servers have is that they support
+setup a static server using NGINX or implement a cache proxying using Varnish or
+Squid. The biggest advantage that these servers have is that they support
 `sendfile` for sending static assets and is generally agreed upon that this is
-"The Best" method for sending static data.
-
-But Node doesn't have this advantage, it's removed from the core "due to reasons"
-and the only way to get decent file serving performance is to do agressive
-caching of the assets in memory to reduce I/O operations as well as optimize for
-cache hits inside the browser or using conditional requests. And that is the
-goal of this project. Cache all the things!.
+"The Best" method for sending static data. But Node doesn't have this advantage,
+it's removed from the core "due to reasons" and the only way to get decent file
+serving performance is to do aggressive caching of the assets in memory to reduce
+I/O operations as well as optimize for cache hits inside the browser or using
+conditional requests. And that is the goal of this project, _cache all the
+things!_
 
 ## Features
 
@@ -28,13 +27,23 @@ static assets to a separate server in order to get them cached.
 ####  REST API
 
 You can communicate with the server using a REST API. You can inspect items from
-the cache, see what keys are cached or flush the server. The possiblities are
+the cache, see what keys are cached or flush the server. The possibilities are
 endless.
 
 #### Metrics
 
 Everybody loves stats, thats why we are gathering metrics about the requests and
 the state of the server. These metrics can be accessed through the REST API.
+
+#### Client API
+
+Versions comes with a dedicated client that can communicate with it's REST API's
+or through Pub/Sub.
+
+#### Synchronisation
+
+Synchronises configuration and versions number between different connected
+consumers to ensure that they are all hitting the same cached version.
 
 #### Love
 
@@ -124,6 +133,51 @@ properties can be configured:
     not found in the <code>directory</code> property.
 
     <code>{ url: "http://example.com", name: "foo" }</code>
+  </dd>
+
+  <dt>version</dt>
+  <dd>
+    The version number of the cache that can be automatically increased and
+    synced between clients so cache can be expired on demand and still have the
+    same version number/cache hits between different clients.
+  </dd>
+
+  <dt>aliases</dt>
+  <dd>
+    In order to parallize the downloading of assets in the browser it's should
+    be spread accross multiple subdomains/domains. You can supply origins
+    multiple origin servers that the client will use to distribute the assets.
+  </dt>
+
+  <dt>sync</dt>
+  <dd>
+    Syncronise configuration between client and server.
+  </dd>
+
+  <dt>redis</dt>
+  <dd>
+    In order to enable a truely distributed cache cloud you can opt in to use a
+    Redis back-end for syncing purposes. This object accepts the following
+    properties:
+
+    <ul>
+      <li>
+        <strong>host</strong>
+        The host name of your redis server.
+      </li>
+      <li>
+        <strong>port</strong>
+        The port number of your redis server.
+      </li>
+      <li>
+        <strong>auth</strong>
+        Optional auth/password to access your redis server.
+      <li>
+        <strong>namespace</strong>
+        The key that should be used to store the configuration and be used as
+        channel name for the pub/sub channel. Defaults to <code>versions</code>
+      </li>
+    </ul>
   </dd>
 </dl>
 
