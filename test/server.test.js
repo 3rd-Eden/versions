@@ -408,6 +408,27 @@ describe('versions()', function () {
       });
     });
 
+    it('does not merge duplicate items in to the array', function () {
+      var origin = [
+        { url: 'https://webops.nodejitsu.com', id: 'webops' },
+        { url: 'https://www.nodejitsu.com', id: 'home' },
+        { url: 'https://raw.github.com/nodejitsu/handbook/integration', id: 'handbook' }
+      ];
+
+      versions.set('origin servers', origin);
+      versions.set('origin servers', origin);
+      versions.set('origin servers', origin);
+      versions.set('origin servers', origin);
+      versions.set('origin servers', origin);
+      versions.set('origin servers', origin);
+      versions.set('origin servers', origin);
+
+      versions.get('origin servers').forEach(function (server, index) {
+        expect(server.url).to.equal(origin[index].url);
+        expect(server.id).to.equal(origin[index].id);
+      });
+    });
+
     it('merges objects', function () {
       versions.set('object', { foo: 'bar' });
       expect(versions.get('object').foo).to.equal('bar');

@@ -361,27 +361,90 @@ Versions.prototype.set = function set(key, to, emit) {
   // Check how we need to set the data, try to make it aware of different types
   // that can be stored in a configuration like objects and arrays, we probably
   // want to merge those in instead of completely overriding the config value.
-  if (Array.isArray(from)) {
-    if (!Array.isArray(to) && !~from.indexOf(to)) from.push(to);
-    else if (to.forEach) to.forEach(function each(value) {
-      if (~from.indexOf(value)) return;
-
-      from.push(value);
-    });
-
-    this.config[key] = from;
-  } else if ('object' === typeof from) {
-    Object.keys(to).forEach(function each(key) {
-      from[key] = to[key];
-    });
-
-    this.config[key] = from;
+  if ('object' === typeof from) {
+    this.config[key] = this.merge(from, to);
   } else {
     this.config[key] = to;
   }
 
   // Emit changes if needed
   if (emit) this.emit('change:'+ key, from, to);
+  return this;
+};
+
+/**
+ * Merge in objects.
+ *
+ * @param {Object} target The object that receives the props
+ * @param {Object} additional Extra object that needs to be merged in the target
+ * @return {Object} target
+ */
+Versions.prototype.merge = function merge(target, additional) {
+  var result = target
+    , undefined;
+
+  // Iterate over Arrays
+  if (target.length === undefined && typeof target !== 'number') {
+    this.forEach(additional, function objectForEach(key, value) {
+      if (target[key] === undefined) {
+        result[key] = value;
+      } else {
+        result[key] = merge(target[key], additional[key]);
+      }
+    });
+  } else if (target.length > 0 && typeof target !== 'string') {
+    this.forEach(additional, function arrayForEach(index) {
+      if (JSON.stringify(target).indexOf(JSON.stringify(additional[index])) === -1) {
+        result.push(additional[index]);
+      }
+    });
+  } else {
+    result = additional;
+  }
+
+  return result;
+};
+
+/**
+ * Iterate over a collection. When you return false, it will stop the iteration.
+ *
+ * @param {Mixed} collection Either an Array or Object.
+ * @param {Function} iterator Function to be called for each item
+ * @returns {Versions}
+ * @api public
+ */
+Versions.prototype.forEach = function forEach(collection, iterator, context) {
+  var isArray = Array.isArray(collection)
+    , length = collection.length
+    , i = 0
+    , value;
+
+  if (context) {
+    if (isArray) {
+      for (; i < length; i++) {
+        value = iterator.apply(collection[ i ], context);
+        if (value === false) break;
+      }
+    } else {
+      for (i in collection) {
+        value = iterator.apply(collection[ i ], context);
+        if (value === false) break;
+      }
+    }
+  } else {
+    if (isArray) {
+      for (; i < length; i++) {
+        value = iterator.call(collection[i], i, collection[i]);
+        if (value === false) break;
+      }
+    } else {
+      for (i in collection) {
+        value = iterator.call(collection[i], i, collection[i]);
+        if (value === false) break;
+      }
+    }
+  }
+
   return this;
 };
 
