@@ -13,14 +13,6 @@ describe('versions.connect() & version() config sync', function () {
     , port: 6379
   };
 
-  after(function (done) {
-    var client = require('redis').createClient(redis.port, redis.host);
-    client.flushall(function () {
-      client.end();
-      done();
-    });
-  });
-
   describe('redis', function () {
     var api, versions, port;
     this.timeout(10000);
@@ -45,8 +37,12 @@ describe('versions.connect() & version() config sync', function () {
     });
 
     after(function (done) {
-      versions.end();
-      api.end(done);
+      var client = require('redis').createClient(redis.port, redis.host);
+      client.flushall(function () {
+        client.end();
+        versions.end();
+        api.end(done);
+      });
     });
 
     it('propagates the version change from the server to the client', function (done) {
@@ -102,16 +98,21 @@ describe('versions.connect() & version() config sync', function () {
     after(function (done) {
       Object.keys(servers).forEach(function (port) {
         servers[port].end();
+        delete servers[port];
       });
 
-      api.end(done);
+      var client = require('redis').createClient(redis.port, redis.host);
+      client.flushall(function () {
+        client.end();
+        api.end(done);
+      });
     });
 
     it('propagetes the version changes through the cluster', function (done) {
       var completed = 0;
 
       Object.keys(servers).forEach(function (port) {
-        servers[port].once('sync:version', function (to) {
+        servers[port].once('sync:version', function (to, index, all) {
           expect(to).to.equal('1.2.3');
           expect(servers[port].get('version')).to.equal(to);
 
@@ -124,6 +125,8 @@ describe('versions.connect() & version() config sync', function () {
 
             done();
           }
+
+          console.log('sync:', completed, instances, index, all.length);
         });
       });
 
@@ -134,26 +137,24 @@ describe('versions.connect() & version() config sync', function () {
       this.timeout(10000);
 
       // Give it some time to fully propagate all the changes
-      setTimeout(function() {
-        // current version number of the cluster.
-        var version = servers[port].get('version');
-        expect(version).to.equal('1.2.3');
+      // current version number of the cluster.
+      var version = servers[port].get('version');
+      expect(version).to.equal('1.2.3');
 
-        // Add a new Node.
-        var node = require('../').clone()
-          .set('version', '9.2.4')
-          .set('redis', redis).set('sync', true)
-          .listen(portnumbers);
+      // Add a new Node.
+      var node = require('../').clone()
+        .set('version', '9.2.4')
+        .set('redis', redis).set('sync', true)
+        .listen(portnumbers);
 
-        expect(node.get('version')).to.not.equal(version);
+      expect(node.get('version')).to.not.equal(version);
 
-        node.once('sync#version', function (to) {
-          expect(to).to.equal(version);
+      node.once('sync#version', function (to) {
+        expect(to).to.equal(version);
 
-          node.end();
-          done();
-        });
-      }, 5000);
+        node.end();
+        done();
+      });
     });
   });
 
