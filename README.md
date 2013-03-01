@@ -40,10 +40,13 @@ In order to reduce the amount of HTTP requests that a browser would do for your
 files it's automatically setting the appropriate caching headers. This way you
 assets will be served from the browser cache instead of the server.
 
-#### Automatic gzip
+#### Advanced gzipping
 
-Gzip is enabled on every compatible file by default. Even if the origin server
-does not support this.
+Gzip is enabled on every compatible file format. Even if the origin server
+doesn't support gzip. In addition to that, we have disabled gzip for IE 5 and
+IE6 without service pack 2 as it's known to impropperly cache it. We also have
+detection for obfuscated gzip headers as researched by the [Yahoo performance
+team](http://developer.yahoo.com/blogs/ydn/posts/2010/12/pushing-beyond-gzipping/).
 
 #### REST API for managing your server
 
