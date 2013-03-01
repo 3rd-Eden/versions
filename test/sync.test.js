@@ -165,10 +165,17 @@ describe('versions.connect() & version() config sync', function () {
       var v = require('../');
 
       port = portnumbers;
-      versions = v.clone().set('sync', true).listen(port);
-      api = v.clone().set('sync', true).connect('http://localhost:'+ port, {
-        interval: '500 ms'
-      });
+      versions = v.clone()
+        .set('auth', 'foobar')
+        .set('sync', true)
+        .listen(port);
+
+      api = v.clone()
+        .set('sync', true)
+        .set('auth', 'foobar')
+        .connect('http://localhost:'+ port, {
+          interval: '500 ms'
+        });
     });
 
     after(function (done) {

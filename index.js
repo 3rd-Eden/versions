@@ -226,14 +226,14 @@ Versions.prototype.listen = function listen(port, callback) {
   }
 
   // Routing should only be enabled with an `auth` configuration.
-  //if (this.get('auth')) {
-    this.layer('rest');
-  //}
+  if (this.get('auth')) {
+   this.layer('rest');
+  }
 
   // Only add support for origin pull if we actually have servers configured.
-  //if (this.get('origin servers').length) {
+  if (this.get('origin servers').length) {
     this.layer('pull');
-  //}
+  }
 
   // End of the configurable middleware.
   this.layer('done');

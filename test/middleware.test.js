@@ -9,11 +9,13 @@ describe('version.layer() integration', function () {
   chai.Assertion.includeStack = true;
 
   before(function () {
-    versions = require('../').clone().path('../').listen(portnumbers);
+    versions = require('../').clone().path('../');
     versions.set('origin servers', [{
       "url": "https://www.nodejitsu.com",
       "id": "home"
     }]);
+    versions.set('auth', 'foobar');
+    versions.listen(portnumbers);
   });
 
   describe('.layer(responseTime)', function () {
@@ -265,7 +267,6 @@ describe('version.layer() integration', function () {
 
   describe('.layer(rest)', function () {
     before(function () {
-      versions.set('auth', 'foobar');
     });
 
     describe('authorization', function () {
@@ -283,7 +284,6 @@ describe('version.layer() integration', function () {
         versions.app.request()
         .get('/version?auth=foobar')
         .end(function (res) {
-          versions.set('auth', '');
           expect(res.statusCode).to.equal(200);
           done();
         });
@@ -293,7 +293,7 @@ describe('version.layer() integration', function () {
     describe('/version', function () {
       it('sends the current version', function (done) {
         versions.app.request()
-        .get('/version')
+        .get('/version?auth=foobar')
         .end(function (res) {
           var body = JSON.parse(res.body);
 
@@ -308,7 +308,7 @@ describe('version.layer() integration', function () {
     describe('/keys', function () {
       it('sends the list of keys that are in memory', function (done) {
         versions.app.request()
-        .get('/keys')
+        .get('/keys?auth=foobar')
         .end(function (res) {
           var body = JSON.parse(res.body);
 
@@ -324,7 +324,7 @@ describe('version.layer() integration', function () {
     describe('/metrics', function () {
       it('sends the list of metrics', function (done) {
         versions.app.request()
-        .get('/metrics')
+        .get('/metrics?auth=foobar')
         .end(function (res) {
           var body = JSON.parse(res.body);
 
@@ -350,7 +350,7 @@ describe('version.layer() integration', function () {
     describe('/inspect', function () {
       it('sends the matched item from the cache for inspection', function (done) {
         versions.app.request()
-        .get('/inspect?key='+ escape('#/img/sprite.png'))
+        .get('/inspect?auth=foobar&key='+ escape('#/img/sprite.png'))
         .end(function (res) {
           expect(res.body).to.contain('/img/sprite.png');
           expect(res.body).to.contain('Content-Length');
@@ -364,7 +364,7 @@ describe('version.layer() integration', function () {
 
       it('sends a failed message if the key does not exist', function (done) {
         versions.app.request()
-        .get('/inspect?key='+ escape('adfaj;fjasd;flakdjs;'))
+        .get('/inspect?auth=foobar&key='+ escape('adfaj;fjasd;flakdjs;'))
         .end(function (res) {
           expect(res.body).to.contain('Failed to find the requested key');
           expect(res.statusCode).to.equal(200);
@@ -379,7 +379,7 @@ describe('version.layer() integration', function () {
         expect(versions.cache.length).to.be.above(0);
 
         versions.app.request()
-        .get('/flush')
+        .get('/flush?auth=foobar')
         .end(function (res) {
           expect(res.body).to.contain('OK');
           expect(res.statusCode).to.equal(200);
