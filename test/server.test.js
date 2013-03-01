@@ -264,7 +264,7 @@ describe('versions()', function () {
       headers: {
         'if-none-match': '1313',
         'if-modified-since': new Date().toUTCString(),
-        'accept-encoding': 'gzip,deflate,cakes'
+        'accept-encoding': 'gzip,deflate,cakes',
       },
       url: '/foo/bar.banana',
       method: 'GET'
@@ -278,6 +278,47 @@ describe('versions()', function () {
     it('detects gzip support', function () {
       expect(versions.allows('gzip', accept)).to.equal(true);
       expect(versions.allows('gzip', decline)).to.equal(false);
+    });
+
+    it('ignores IE6 without service pack', function () {
+      accept.headers['user-agent'] = 'Mozilla/5.0 (compatible; MSIE 6.0; Windows NT 5.1)';
+
+      expect(versions.allows('gzip', accept)).to.equal(false);
+    });
+
+    it('accepts IE6 with a service pack', function () {
+      accept.headers['user-agent'] = 'Mozilla/5.0 (Windows; U; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727)';
+
+      expect(versions.allows('gzip', accept)).to.equal(true);
+    });
+
+    it('forces gzip on obfuscated encoding headers', function () {
+      var headers = [
+        'Accept-EncodXng',
+        'X-cept-Encoding',
+        'XXXXXXXXXXXXXXX',
+        '~~~~~~~~~~~~~~~',
+        '---------------'
+      ];
+
+      var values = [
+        'gzip',
+        'deflate',
+        'gzip,deflate',
+        'deflate,gzip',
+        'XXXXXXXXXXXXX',
+        '~~~~~~~~~~~~~',
+        '-------------'
+      ];
+
+      headers.forEach(function (header) {
+        values.forEach(function (val) {
+          var req = { headers: {} };
+          req.headers[header] = val;
+
+          expect(versions.allows('gzip', req)).to.equal(true);
+        });
+      });
     });
 
     it('detects invalid extensions', function () {
@@ -340,6 +381,8 @@ describe('versions()', function () {
         done();
       });
     });
+
+    it('compresses font files');
   });
 
   describe('#get', function () {

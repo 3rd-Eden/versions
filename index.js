@@ -324,7 +324,30 @@ Versions.prototype.allows = function supports(what, req) {
   switch (what) {
     // Does the connected browser support GZIP?
     case 'gzip':
-      return !!~(headers['accept-encoding'] || '').toLowerCase().indexOf('gzip');
+      // Detect broken gzip encoding on Internet Explorer 5 & 6
+      // @see sebduggan.com/blog/ie6-gzip-bug-solved-using-isapirewrite
+      var ua = (headers['user-agent'] || '');
+      if (ua && /msie\s[5|6]/i.test(ua) && !/sv1/i.test(ua)) return false;
+
+      // Fast case:
+      if (~(headers['accept-encoding'] || '').toLowerCase().indexOf('gzip')) return true;
+
+      // Attempt to detect obfuscated encoding headers, which is the least
+      // common case here but caused by firewalls.
+      // @see developer.yahoo.com/blogs/ydn/posts/2010/12/pushing-beyond-gzipping
+      var obfheader = /^(Accept-EncodXng|X-cept-Encoding|X{15}|~{15}|-{15})$/i
+        , obfvalue = /^((gzip|deflate)\s*,?\s*)+|[X\~\-]{4,13}$/i
+        , obfuscated = false
+        , key;
+
+      for (key in headers) {
+        if (obfheader.test(key) && obfvalue.test(headers[key])) {
+          obfuscated = true;
+          break;
+        }
+      }
+
+      return obfuscated;
 
     // Do we allow this extension to be served from our server?
     case 'extension':
@@ -357,13 +380,26 @@ Versions.prototype.allows = function supports(what, req) {
  */
 Versions.prototype.compress = function compress(type, data, callback) {
   // Only these types of content should be gzipped.
-  if (!/json|text|javascript/.test(type || '')) {
+  if (/json|text|javascript|xml/.test(type || '') || type in this.compressTypes) {
+    zlib.gzip(data, callback);
+  } else {
     process.nextTick(callback);
-    return exports;
   }
 
-  zlib.gzip(data, callback);
   return this;
+};
+
+/**
+ * Files that should be gzipped but doesn't match our regexp check.
+ *
+ * @type {Object}
+ * @api private
+ */
+Versions.prototype.compressTypes = {
+  'application/vnd.ms-fontobject': true,
+  'application/x-font-ttf': true,
+  'font/opentype': true,
+  'image/x-icon': true
 };
 
 /**
