@@ -116,7 +116,7 @@ describe('versions.connect()', function () {
     });
   });
 
-  describe.only('#prefix', function () {
+  describe('#prefix', function () {
     var server , port = portnumbers, api;
 
     before(function () {

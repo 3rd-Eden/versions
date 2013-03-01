@@ -1,14 +1,15 @@
 {
+  "aliases": [],
   "auth": "",
   "blacklisted extensions": [],
   "cors": "*",
-  "directory": "./public",
+  "directory": "",
   "expire internal cache": "1 hour",
-  "max age": "30 days",
   "log level": "log",
-  "version": "0.0.0",
-  "sync": false,
+  "max age": "30 days",
   "origin servers": [],
+  "plugins": [],
   "port": 8080,
-  "aliases": []
+  "sync": false,
+  "version": "0.0.0"
 }

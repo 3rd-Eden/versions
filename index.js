@@ -39,6 +39,7 @@ function Versions(options) {
     this.read('../../node_modules/package.json');    // For version number
     this.read('./versions.json');                    // For our defaults
     this.read('../../node_modules/versions.json');   // For their defaults
+    this.read('../../node_modules/versions.js');     // For their defaults
   } else {
     Object.keys(options.cloned).forEach(function merge(key) {
       // Merge in the cloned configuration, silently
@@ -199,16 +200,42 @@ Versions.prototype.listen = function listen(port, callback) {
   // Initialize the server configuration.
   this.initialize('server');
 
-  // Configure the middleware
+  // Configure the middleware.
   this.layer('responseTime');
   this.layer('initialize');
   this.layer('versioning');
   this.layer('conditional');
   this.layer('compress');
   this.layer('memorize');
-  this.layer('static', this.get('static'), { maxAge: this.get('max age') });
-  this.layer('rest');
-  this.layer('pull');
+
+  // Allow the loading of third party components.
+  if (this.get('plugins')) {
+    this.get('plugins').forEach(function add(plugin) {
+      if ('string' === typeof plugin) {
+        this.layer(plugin);
+      } else {
+        this.layer(plugin.name, plugin.config);
+      }
+    }, this);
+  }
+
+  // Only add static server support if it a `directory` was specified in the
+  // configuration.
+  if (this.get('directory')) {
+    this.layer('static', this.get('static'), { maxAge: this.get('max age') });
+  }
+
+  // Routing should only be enabled with an `auth` configuration.
+  //if (this.get('auth')) {
+    this.layer('rest');
+  //}
+
+  // Only add support for origin pull if we actually have servers configured.
+  //if (this.get('origin servers').length) {
+    this.layer('pull');
+  //}
+
+  // End of the configurable middleware.
   this.layer('done');
 
   // Start listening for changes.
@@ -227,7 +254,7 @@ Versions.prototype.listen = function listen(port, callback) {
  * @api private
  */
 Versions.prototype.initialize = function initialize(type) {
-  // Setup our extra configuration values
+  // Setup our extra configuration values.
   if (!this.get('static')) {
     this.set('static', path.resolve(this.get('root'), this.get('directory')));
   }
@@ -240,7 +267,7 @@ Versions.prototype.initialize = function initialize(type) {
   this.cache = new Expirable(this.get('expire internal cache'));
   this.metrics = require('./measure').collect(this);
 
-  // Setup syncing if provided
+  // Setup syncing if provided.
   this.sync();
   return this;
 };
@@ -257,7 +284,7 @@ Versions.prototype.write = function write(req, res, data) {
   var age = this.get('max age')
     , body = data.buffer;
 
-  // Check if we have a GZIP version of the content
+  // Check if we have a GZIP version of the content.
   if (this.allows('gzip', req) && 'gzip' in data) {
     res.setHeader('Content-Encoding', 'gzip');
     body = data.gzip;

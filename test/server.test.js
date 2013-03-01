@@ -89,6 +89,11 @@ describe('versions()', function () {
       versions.logger.removeAllListeners('error');
       expect(errors).to.equal(2);
     });
+
+    it('reads plain javascript files', function () {
+      versions.read(path.resolve(__dirname, './fixtures/extra.js'));
+      expect(versions.get('plain')).to.equal('javascript');
+    });
   });
 
   describe("#clone", function () {
