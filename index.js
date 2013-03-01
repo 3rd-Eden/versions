@@ -239,7 +239,16 @@ Versions.prototype.listen = function listen(port, callback) {
   this.layer('done');
 
   // Start listening for changes.
-  this.server = require('http').createServer(this.app);
+  if (this.get('ssl')) {
+    if (this.get('spdy')) {
+      this.server = require('spdy').createServer(this.get('ssl'), this.app);
+    } else {
+      this.server = require('https').createServer(this.get('ssl'), this.app);
+    }
+  } else {
+    this.server = require('http').createServer(this.app);
+  }
+
   this.server.listen(this.get('port'), function listening(err) {
     this.emit('listening', err);
   }.bind(this));

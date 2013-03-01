@@ -13,10 +13,20 @@ I/O operations as well as optimize for cache hits inside the browser or using
 conditional requests. And that is the goal of this project, _cache all the
 things!_
 
+### Build status
+
+Please note that the build status only displays the status of the GitHub master
+branch. New stable versions are only released once the master passes all tests.
+
+[![Build Status](https://travis-ci.org/3rd-Eden/versions.png?branch=master)](https://travis-ci.org/3rd-Eden/versions)
+
+---
+
 ## Features
 
 Versions comes with tons of features to make it easier for you to set up a
-simple static server.
+simple static server. We try to support as many features as a normal paid CDN
+would provide for you.
 
 #### Origin Pull
 
@@ -24,7 +34,18 @@ In addition to serving files from disk you can also configure versions to pull
 static content from an origin server. This way you don't have to upload you
 static assets to a separate server in order to get them cached.
 
-####  REST API
+#### Set caching headers for files
+
+In order to reduce the amount of HTTP requests that a browser would do for your
+files it's automatically setting the appropriate caching headers. This way you
+assets will be served from the browser cache instead of the server.
+
+#### Automatic gzip
+
+Gzip is enabled on every compatible file by default. Even if the origin server
+does not support this.
+
+#### REST API for managing your server
 
 You can communicate with the server using a REST API. You can inspect items from
 the cache, see what keys are cached or flush the server. The possibilities are
@@ -47,7 +68,9 @@ consumers to ensure that they are all hitting the same cached version.
 
 #### Love
 
-It's crafted with love, what else do you need?
+It's crafted and engineered with love, what else do you need?
+
+---
 
 ## Installation
 

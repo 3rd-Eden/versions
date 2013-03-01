@@ -167,6 +167,8 @@ describe('versions()', function () {
     });
 
     it('sets a custom port number if supplied as argument');
+    it('supports HTTP');
+    it('supports SPDY');
     it('adds middleware layers');
     it('sets up the HTTP server');
     it('emits a listening event');
