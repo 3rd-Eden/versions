@@ -78,9 +78,8 @@ properties can be configured:
   <dt>auth</dd>
   <dd>
     The <code>auth</code> property is a simple security token that you can use
-    to secure your versions REST API. It's unsecured by default but by after
-    setting this property it requires an <code>?auth=<prop></code> parameter to
-    be used to access the API.
+    to secure your versions REST API. After setting this property it requires an
+    <code>?auth=<prop></code> parameter to be used to access the API.
   </dd>
 
   <dt>blacklisted extensions</dt>
