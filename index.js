@@ -294,15 +294,20 @@ Versions.prototype.write = function write(req, res, data) {
     , body = data.buffer;
 
   // Check if we have a GZIP version of the content.
-  if (this.allows('gzip', req) && 'gzip' in data) {
-    res.setHeader('Content-Encoding', 'gzip');
-    body = data.gzip;
+  if ('gzip' in data) {
+    if (this.allows('gzip', req)) {
+      res.setHeader('Content-Encoding', 'gzip');
+      body = data.gzip;
+      this.metrics.incr('gzip');
+    } else {
+      this.metrics.incr('gzip blocked');
+    }
   }
 
   res.setHeader('Expires', new Date(Date.now() + age).toUTCString());
   res.setHeader('Cache-Control', 'max-age='+ age +', public');
-  res.setHeader('Last-Modified', data.lastModified);
-  res.setHeader('Content-Type', data.contentType);
+  res.setHeader('Last-Modified', data['last-modified']);
+  res.setHeader('Content-Type', data['content-type']);
   res.setHeader('Content-Length', body.length);
 
   res.end(body);

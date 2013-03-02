@@ -23,6 +23,12 @@ exports.collect = function collect(versions) {
         return (size / 1024).toFixed(2) +'kb';
       },
       enumerable: true
+    },
+    'memory': {
+      get: function memory() {
+        return process.memoryUsage();
+      },
+      enumerable: true
     }
   });
 
