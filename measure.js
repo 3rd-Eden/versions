@@ -1,7 +1,18 @@
 'use strict';
 
+/**
+ * Small helpr library for creating metrics.
+ *
+ * @param {Versions} versions
+ * @api private
+ */
 exports.collect = function collect(versions) {
   var metrics = Object.create(null, {
+    /**
+     * Display the requests per second. The current implementation is wrong. And
+     * it show shows the average amount of requests for the lifetime of the
+     * server.
+     */
     'requests per second': {
       get: function requests() {
         var seconds = ((Date.now() - start) / 1000).toFixed(0)
@@ -11,6 +22,12 @@ exports.collect = function collect(versions) {
       },
       enumerable: true
     },
+
+    /**
+     * Displays the current size of our internal cache. It's bit flacky as it
+     * doesn't include the headers and key of the cache. But it gives a clear
+     * indication
+     */
     'cache size': {
       get: function cachesize() {
         var size = 0;
@@ -24,16 +41,25 @@ exports.collect = function collect(versions) {
       },
       enumerable: true
     },
+
+    /**
+     * Displays the memory usage of the current node process.
+     *
+     * @TODO format in to bytes
+     */
     'memory': {
       get: function memory() {
-        return process.memoryUsage();
+        var mem = process.memoryUsage();
+
+        return mem;
       },
       enumerable: true
     }
   });
 
   /**
-   * Increase a metric
+   * Increase a metric. We can attach this directly to the metrics object as
+   * JSON.stringify does not include functions.
    *
    * @param {String} counter Name of the counter that we need to increase
    * @returns {Metrics}

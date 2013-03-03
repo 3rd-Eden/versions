@@ -19,7 +19,11 @@ var id = 0;
  * Versions is simple dedicated static server, it does it best to ensure that
  * all static files are cached properly.
  *
+ * Options:
+ * - cloned: Is this a cloned instance? <boolean>
+ *
  * @constructor
+ * @param {Object} options Optional configuration.
  * @api public
  */
 function Versions(options) {
@@ -55,6 +59,8 @@ function Versions(options) {
 /**
  * Versions inherits from the EventEmitter so we can emit events for internal
  * changes.
+ *
+ * @private
  */
 Versions.prototype.__proto__ = EventEmitter.prototype;
 
@@ -78,7 +84,7 @@ Versions.prototype.async = require('./async');
  * Semver compare
  *
  * @type {Object}
- * @api public
+ * @api private
  */
 Versions.prototype.semver = require('semver');
 
@@ -87,7 +93,7 @@ Versions.prototype.semver = require('semver');
  *
  * @param {String} ms The string that needs to be parsed
  * @param {Object} options Optional configuration for parsing
- * @api public
+ * @api private
  */
 Versions.prototype.parse = function parse(nr, options) {
   if (+nr && !options) return +nr;
@@ -98,7 +104,7 @@ Versions.prototype.parse = function parse(nr, options) {
  * Request.. Sends requests.
  *
  * @type {Function}
- * @api public
+ * @api private
  */
 Versions.prototype.request = require('request');
 
@@ -147,6 +153,7 @@ Versions.prototype.read = function read(path) {
  *
  * @param {String} name The filename of the layer.
  * @param {Object} options Optional configuration to initialize the middleware
+ * @api private
  */
 Versions.prototype.layer = function layer(name, options) {
   // This is actually a connect middleware
@@ -321,7 +328,7 @@ Versions.prototype.write = function write(req, res, data) {
  * @param {String} what What do we need to test for
  * @param {Request} req HTTP server request
  * @returns {Boolean}
- * @api private
+ * @api public
  */
 Versions.prototype.allows = function supports(what, req) {
   var headers = req.headers;
@@ -398,7 +405,7 @@ Versions.prototype.compress = function compress(type, data, callback) {
  * Files that should be gzipped but doesn't match our regexp check.
  *
  * @type {Object}
- * @api private
+ * @api public
  */
 Versions.prototype.compressTypes = {
   'application/vnd.ms-fontobject': true,
@@ -424,6 +431,7 @@ Versions.prototype.get = function get(key) {
  * @param {String} key Configuration property that needs to be updated
  * @param {Mixed} to The new value
  * @returns {Versions}
+ * @api public
  */
 Versions.prototype.set = function set(key, to, emit) {
   var from = this.config[key];
@@ -455,6 +463,7 @@ Versions.prototype.set = function set(key, to, emit) {
  * @param {Object} target The object that receives the props
  * @param {Object} additional Extra object that needs to be merged in the target
  * @return {Object} target
+ * @api public
  */
 Versions.prototype.merge = function merge(target, additional) {
   var result = target
@@ -528,7 +537,7 @@ Versions.prototype.forEach = function forEach(collection, iterator, context) {
  * Setup a sync system that can be used for client to communicate with the
  * servers.
  *
- * @api public
+ * @api private
  */
 Versions.prototype.sync = function sync() {
   var self = this
@@ -701,6 +710,7 @@ Versions.prototype.factory = function factory() {
  * @param {String} server The domain name of the Versions server.
  * @param {Object} options Connection options.
  * @returns {Version.Client}
+ * @api public
  */
 Versions.prototype.connect = function connect(server, options) {
   return new Versions.Client(this, server, options);
