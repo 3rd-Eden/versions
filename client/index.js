@@ -196,10 +196,12 @@ Sync.prototype.version = function version(number, callback) {
       return callback(err || new Error('Invalid Status Code returned'));
     }
 
-    try { body = JSON.parse(body); }
-    catch (e) { return callback(new Error('Failed to parse response')); }
+    if ('object' !== typeof body) {
+      try { body = JSON.parse(body); }
+      catch (e) { return callback(new Error('Failed to parse response')); }
+    }
 
-    return callback(undefined, body);
+    return callback(undefined, body.version);
   });
 
   return this;

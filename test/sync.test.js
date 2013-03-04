@@ -109,28 +109,33 @@ describe('versions.connect() & version() config sync', function () {
     });
 
     it('propagetes the version changes through the cluster', function (done) {
-      var completed = 0;
+      var completed = -1;
+
+      function ready() {
+        if (++completed === instances) {
+          Object.keys(servers).forEach(function (p) {
+            var version = servers[p].get('version');
+
+            expect(version).to.equal('1.2.3');
+          });
+
+          done();
+        }
+      }
 
       Object.keys(servers).forEach(function (port) {
         servers[port].once('sync:version', function (to, index, all) {
           expect(to).to.equal('1.2.3');
           expect(servers[port].get('version')).to.equal(to);
 
-          if (++completed === instances) {
-            Object.keys(servers).forEach(function (p) {
-              var version = servers[p].get('version');
-
-              expect(version).to.equal('1.2.3');
-            });
-
-            done();
-          }
-
-          console.log('sync:', completed, instances, index, all.length);
+          ready();
         });
       });
 
-      api.version('1.2.3');
+      api.version('1.2.3', function (err) {
+        expect(err).to.not.be.an.instanceof(Error);
+        ready();
+      });
     });
 
     it('receives the latest config when a node is added to the cluster', function (done) {
@@ -193,12 +198,21 @@ describe('versions.connect() & version() config sync', function () {
     });
 
     it('propagates the version change from the client to the server', function (done) {
+      var calls = 0;
+
+      function ready() {
+        if (++calls === 2) done();
+      }
+
       versions.once('sync:version', function (to) {
         expect(to).to.equal('2.2.2');
-        done();
+        ready();
       });
 
-      api.version('2.2.2');
+      api.version('2.2.2', function (err) {
+        expect(err).to.not.be.an.instanceof(Error);
+        ready()
+      });
     });
   });
 });
