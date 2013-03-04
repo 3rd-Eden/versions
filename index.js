@@ -609,9 +609,7 @@ Versions.prototype.sync = function sync() {
         }));
 
         atomic.exec(function stored(err) {
-          if (err) {
-            return self.logger.error('Failed to sync the configuration in the cloud');
-          }
+          if (err) self.logger.error('Failed to sync the configuration in the cloud');
 
           self.emit('stored:'+ key, err);
         });

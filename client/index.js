@@ -179,7 +179,7 @@ Sync.prototype.version = function version(number, callback) {
 
   // If we are using redis, it will be pub/subbed over the connection
   this.set('version', number);
-  if (this.get('redis')) return process.nextTick(callback);
+  if (this.get('redis')) return this.once('stored:version', callback);
 
   var url = this.server + '/version';
 
@@ -201,6 +201,8 @@ Sync.prototype.version = function version(number, callback) {
 
     return callback(undefined, body);
   });
+
+  return this;
 };
 
 /**
