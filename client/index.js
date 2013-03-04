@@ -113,6 +113,11 @@ Sync.prototype.initialize = function initialize() {
   // fail like a mofo.
   if (this.get('auth')) url += '?auth='+ this.get('auth');
 
+  // Check if we need to prefix the server
+  if (url.charAt(0) === '/' && url.charAt(1) === '/') {
+    url = 'https:'+ url;
+  }
+
   /**
    * They see me pollin, they hatin.
    *
@@ -186,6 +191,11 @@ Sync.prototype.version = function version(number, callback) {
   // If we have authorization set, add the correct param so our request doesn't
   // fail like a mofo.
   if (this.get('auth')) url += '?auth='+ this.get('auth');
+
+  // Check if we need to prefix the server
+  if (url.charAt(0) === '/' && url.charAt(1) === '/') {
+    url = 'https:'+ url;
+  }
 
   this.request({
       uri: url
