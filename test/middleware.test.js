@@ -10,10 +10,15 @@ describe('version.layer() integration', function () {
 
   before(function () {
     versions = require('../').clone().path('../');
+
     versions.set('origin servers', [{
       "url": "https://www.nodejitsu.com",
       "id": "home"
+    }, {
+      "url": "https://webops.nodejitsu.com",
+      "id": "webops"
     }]);
+
     versions.set('auth', 'foobar');
     versions.listen(portnumbers);
   });
@@ -184,6 +189,23 @@ describe('version.layer() integration', function () {
         expect(res.statusCode).to.equal(404);
 
         done();
+      });
+    });
+
+    it('parses the origin hint', function (done) {
+      versions.app.request()
+      .get('/id:webops/img/sprite.png')
+      .end(function (webops) {
+        expect(webops.statusCode).to.equal(200);
+
+        versions.app.request()
+        .get('/id:home/img/sprite.png')
+        .end(function (home) {
+          expect(home.statusCode).to.equal(200);
+          expect(home.body).to.not.equal(webops.body);
+
+          done();
+        });
       });
     });
 
