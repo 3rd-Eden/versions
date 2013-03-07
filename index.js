@@ -392,7 +392,7 @@ Versions.prototype.allows = function supports(what, req) {
  */
 Versions.prototype.compress = function compress(type, data, callback) {
   // Only these types of content should be gzipped.
-  if (/json|text|javascript|xml/.test(type || '') || type in this.compressTypes) {
+  if (/json|text|javascript|xml/i.test(type || '') || type in this.compressTypes) {
     zlib.gzip(data, callback);
   } else {
     process.nextTick(callback);
