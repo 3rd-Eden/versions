@@ -230,3 +230,39 @@ Full example of a versions.json:
   "port": 8080
 }
 ```
+
+### Configuration API
+
+In addition to reading your `versions.json` file for the configuration it's also
+possible to set the configuration using dedicated API methods or the
+`versions#set` method. The `versions#set` method expects 2 arguments, the first
+argument is the name of the configuration key that you want to update and the
+second value in the actual value:
+
+```js
+var versions = require('versions');
+
+versions.set('auth', 'superSec3rtp4ssw0rd')
+```
+
+The API is also chainable, so you can do as many `versions#set` calls if needed.
+Versions also provides you with some API sugar to make configuring a bit more
+human readable:
+
+```js
+versions.path('/public').expire('10 hours');
+```
+
+The following API methods map directly to configuration (see versions.json
+configuration above for detailed information about what each configuration key
+triggers):
+
+API       | Configuration key
+----------|------------------
+path      | directory
+lifetime  | max age
+expire    | expire internal cache
+
+## License
+
+MIT
