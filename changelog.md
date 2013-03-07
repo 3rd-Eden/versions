@@ -1,3 +1,8 @@
+### 0.1.4
+- Added support for tagging origin servers using `/id:<origin id>/`
+- Fixed a bug where the assests where not receiving gzip compression
+- Added a 404 event.
+
 ### 0.1.3
 - Fixed a bug in the client API that caused the callback for the versions method
   to not be called when the redis backend was configured
