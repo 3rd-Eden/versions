@@ -114,6 +114,15 @@ describe('versions.connect()', function () {
         expect(tag).to.equal('http://lolcathost:'+ port +'/versions:0.0.0/css/base.css');
       }
     });
+
+    it('forces https for server relative protcol css files', function () {
+      var client = require('../').clone().connect('//localhost:8888');
+
+      expect(client.tag('/foo.png')).to.equal('//localhost:8888/versions:0.0.0/foo.png');
+      expect(client.tag('/foo.css')).to.equal('https://localhost:8888/versions:0.0.0/foo.css');
+
+      client.end();
+    });
   });
 
   describe('#prefix', function () {

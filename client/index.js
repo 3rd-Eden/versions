@@ -1,6 +1,7 @@
 'use strict';
 
 var HashRing = require('hashring')
+  , path = require('path')
   , undefined;
 
 /**
@@ -78,8 +79,14 @@ function Sync(versions, server, options) {
  */
 Sync.prototype.tag = function tag(url) {
   var server = this.hashring.get(url);
-
   if (!server) return url;
+
+  // In IE7 - 8 a protocol relative stylesheet will cause a double download,
+  // make sure that our server isn't relative by forcing HTTPS.
+  if (server.charAt(0) === '/' && path.extname(url) === '.css') {
+    server = 'https:'+ server;
+  }
+
   return this.prefix(server) + url;
 };
 
@@ -114,9 +121,7 @@ Sync.prototype.initialize = function initialize() {
   if (this.get('auth')) url += '?auth='+ this.get('auth');
 
   // Check if we need to prefix the server
-  if (url.charAt(0) === '/' && url.charAt(1) === '/') {
-    url = 'https:'+ url;
-  }
+  if (url.charAt(0) === '/') url = 'https:'+ url;
 
   /**
    * They see me pollin, they hatin.
@@ -193,9 +198,7 @@ Sync.prototype.version = function version(number, callback) {
   if (this.get('auth')) url += '?auth='+ this.get('auth');
 
   // Check if we need to prefix the server
-  if (url.charAt(0) === '/' && url.charAt(1) === '/') {
-    url = 'https:'+ url;
-  }
+  if (url.charAt(0) === '/') url = 'https:'+ url;
 
   this.request({
       uri: url
