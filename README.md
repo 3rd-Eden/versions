@@ -86,6 +86,13 @@ npm install versions --save
 The `--save` tells npm to automatically add this file to the `dependencies`
 object of your `package.json` file.
 
+## API references
+
+The API references are generated from the source's JSDoc comments:
+
+- [Server API reference](/3rd-Eden/versions/blob/master/API/README.md)
+- [Client API reference](/3rd-Eden/versions/blob/master/API/client.md)
+
 ## Configuration
 
 The server can be configured in 2 different ways or a hybrid of both. It has a
