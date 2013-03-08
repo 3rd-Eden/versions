@@ -672,8 +672,28 @@ Versions.prototype.factory = function factory() {
     });
 
     // Setup a close listener
-    client.once('end', function end() {
+    client.on('end', function end() {
       self.logger.info('[versions] The %s connection has shutdown', type);
+    });
+
+    // Output some useful information for when server is reconnecting
+    client.on('reconnecting', function reconnecting(evt) {
+      self.logger.debug(
+          '[versions] Reconnecting %s, attempt: %d with delay %d'
+        , type
+        , evt.attempt
+        , evt.delay
+      );
+    });
+
+    // Connected
+    client.on('connect', function connect() {
+      self.logger.debug('[versions] The %s connections is established', type);
+    });
+
+    // The connection is ready to be used
+    client.on('ready', function ready() {
+      self.logger.debug('[versions] The %s connections is ready', type);
     });
 
     return conn;
