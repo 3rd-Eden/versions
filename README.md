@@ -105,118 +105,144 @@ using the API to override some of the configuration values.
 <dl>
   <dt>auth</dd>
   <dd>
-    The <code>auth</code> property is a simple security token that you can use
-    to secure your versions REST API. After setting this property it requires an
-    <code>?auth=<prop></code> parameter to be used to access the API.
+    <p>
+      The <code>auth</code> property is a simple security token that you can use
+      to secure your versions REST API. After setting this property it requires
+      an <code>?auth=<prop></code> parameter to be used to access the API.
+    </p>
 
     <pre>versions.set('auth', 'Sup3rSecr3tP4z5w0rdy0');</pre>
   </dd>
 
   <dt>blacklisted extensions</dt>
   <dd>
-    Black list extensions that you do want to have pulled from your origin
-    server. You can for example black list <code>.conf</code> files or maybe
-    some other random files. Please note that people can still fetch these files
-    directly from the origin server.
+    <p>
+      Black list extensions that you do want to have pulled from your origin
+      server. You can for example black list <code>.conf</code> files or maybe
+      some other random files. Please note that people can still fetch these
+      files directly from the origin server.
+    </p>
 
     <pre>versions.set('blacklisted extensions', ['.conf', '.log', '.gz']);</pre>
   </dd>
 
   <dt>cors</dt>
   <dd>
-    Set custom <code>Access-Control-Allow-Origin</code> headers. The default
-    value is <code>*</code> so all values are allowed. If you only want allow
-    access from a specific domain set the domain here.
+    <p>
+      Set custom <code>Access-Control-Allow-Origin</code> headers. The default
+      value is <code>*</code> so all values are allowed. If you only want allow
+      access from a specific domain set the domain here.
+    </p>
 
     <pre>versions.set('cors', '*.example.com');</pre>
   </dd>
 
   <dt>directory</dt>
   <dd>
-    A directory that is relative the module that required versions that is used
-    to serve static content. If you want this directory to be relative to a
-    different path. You can see a <code>root</code> property.
+    <p>
+      A directory that is relative the module that required versions that is
+      used to serve static content. If you want this directory to be relative to
+      a different path. You can see a <code>root</code> property.
+    </p>
 
     <pre>versions.set('directory', './public');</pre>
   </dd>
 
   <dt>expire internal cache</dt>
   <dd>
-    How long should we keep items in our internal (memory) cache. It accepts a
-    numeric value as miliseconds or a human readable string like
-    <code>10 hours</code> or <code>90 minutes</code>. Defaults to 1 hour.
+    <p>
+      How long should we keep items in our internal (memory) cache. It accepts a
+      numeric value as miliseconds or a human readable string like
+      <code>10 hours</code> or <code>90 minutes</code>. Defaults to 1 hour.
+    </p>
 
     <pre>versions.set('expire internal cache', '2 days');</pre>
   </dd>
 
   <dt>max age</dt>
   <dd>
-    How long should the browser cache the files? It accepts a numeric value as
-    miliseconds or a human readable string like <code>10 hours</code> or
-    <code>90 days</code>. Defaults to <code>30 days</code>. Please note that
-    this value should not be longer then a year.
-    
+    <p>
+      How long should the browser cache the files? It accepts a numeric value as
+      miliseconds or a human readable string like <code>10 hours</code> or
+      <code>90 days</code>. Defaults to <code>30 days</code>. Please note that
+      this value should not be longer then a year.
+    </p>
+
     <pre>versions.set('max age', '1 year')</pre>
   </dd>
 
   <dt>port</dt>
   <dd>
-    As you might imagine, on which port number do you want to run the server.
-    Defaults to <code>8080</code>.
+    <p>
+      As you might imagine, on which port number do you want to run the server.
+      Defaults to <code>8080</code>.
+    </p>
 
     <pre>versions.set('port', '8080');</pre>
   </dd>
 
   <dt>origin servers</dt>
   <dd>
-    An array of of servers objects that is used to fetch resources from that is
-    not found in the <code>directory</code> property.
+    <p>
+      An array of of servers objects that is used to fetch resources from that
+      is not found in the <code>directory</code> property.
+    </p>
 
     <pre>versions.set('origin servers', { url: "http://example.com", name: "foo" });</pre>
   </dd>
 
   <dt>version</dt>
   <dd>
-    The version number of the cache that can be automatically increased and
-    synced between clients so cache can be expired on demand and still have the
-    same version number/cache hits between different clients.
+    <p>
+      The version number of the cache that can be automatically increased and
+      synced between clients so cache can be expired on demand and still have
+      the same version number/cache hits between different clients.
+    </p>
 
     <pre>versions.set('version', '0.0.0');</pre>
   </dd>
 
   <dt>aliases</dt>
   <dd>
-    In order to parallize the downloading of assets in the browser it's should
-    be spread accross multiple subdomains/domains. You can supply origins
-    multiple origin servers that the client will use to distribute the assets.
-    
+    <p>
+      In order to parallize the downloading of assets in the browser it's should
+      be spread accross multiple subdomains/domains. You can supply origins
+      multiple origin servers that the client will use to distribute the assets.
+    </p>
+
     <pre>versions.set('aliases', 'http://example.org');</pre>
   </dt>
 
   <dt>plugins</dt>
   <dd>
-    Versions is build ontop of the connect framework is configured to use the
-    minimal amount of plugins to get the job done. The plugins array allows you
-    to specify extra middleware layers that you want to have loaded in to
-    versions or custom connect compatible nodejs modules that need to be
-    required.
+    <p>
+      Versions is build ontop of the connect framework is configured to use the
+      minimal amount of plugins to get the job done. The plugins array allows
+      you to specify extra middleware layers that you want to have loaded in to
+      versions or custom connect compatible nodejs modules that need to be
+      required.
+    </p>
 
     <pre>versions.set('plugins', [{ name: 'logger', config: 'short' }, 'logger']);</pre>
   </dd>
 
   <dt>sync</dt>
   <dd>
-    Syncronise configuration between client and server. If you are using
-    multiple servers also set the redis configuration.
+    <p>
+      Syncronise configuration between client and server. If you are using
+      multiple servers also set the redis configuration.
+    </p>
 
     <pre>versions.set('sync', true);</pre>
   </dd>
 
   <dt>redis</dt>
   <dd>
-    In order to enable a truely distributed cache cloud you can opt in to use a
-    Redis back-end for syncing purposes. This object accepts the following
-    properties:
+    <p>
+      In order to enable a truely distributed cache cloud you can opt in to use
+      a Redis back-end for syncing purposes. This object accepts the following
+      properties:
+    </p>
 
     <ul>
       <li>
