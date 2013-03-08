@@ -109,9 +109,7 @@ using the API to override some of the configuration values.
     to secure your versions REST API. After setting this property it requires an
     <code>?auth=<prop></code> parameter to be used to access the API.
 
-    <code>
-      versions.set('auth', 'Sup3rSecr3tP4z5w0rdy0');
-    </code>
+    <pre>versions.set('auth', 'Sup3rSecr3tP4z5w0rdy0');</pre>
   </dd>
 
   <dt>blacklisted extensions</dt>
@@ -121,9 +119,7 @@ using the API to override some of the configuration values.
     some other random files. Please note that people can still fetch these files
     directly from the origin server.
 
-    <code>
-      versions.set('blacklisted extensions', ['.conf', '.log', '.gz']);
-    </code>
+    <pre>versions.set('blacklisted extensions', ['.conf', '.log', '.gz']);</pre>
   </dd>
 
   <dt>cors</dt>
@@ -132,9 +128,7 @@ using the API to override some of the configuration values.
     value is <code>*</code> so all values are allowed. If you only want allow
     access from a specific domain set the domain here.
 
-    <code>
-      versions.set('cors', '*.example.com');
-    </code>
+    <pre>versions.set('cors', '*.example.com');</pre>
   </dd>
 
   <dt>directory</dt>
@@ -143,9 +137,7 @@ using the API to override some of the configuration values.
     to serve static content. If you want this directory to be relative to a
     different path. You can see a <code>root</code> property.
 
-    <code>
-      versions.set('directory', './public');
-    </code>
+    <pre>versions.set('directory', './public');</pre>
   </dd>
 
   <dt>expire internal cache</dt>
@@ -154,9 +146,7 @@ using the API to override some of the configuration values.
     numeric value as miliseconds or a human readable string like
     <code>10 hours</code> or <code>90 minutes</code>. Defaults to 1 hour.
 
-    <code>
-      versions.set('expire internal cache', '2 days');
-    </code>
+    <pre>versions.set('expire internal cache', '2 days');</pre>
   </dd>
 
   <dt>max age</dt>
@@ -165,6 +155,8 @@ using the API to override some of the configuration values.
     miliseconds or a human readable string like <code>10 hours</code> or
     <code>90 days</code>. Defaults to <code>30 days</code>. Please note that
     this value should not be longer then a year.
+    
+    <pre>versions.set('max age', '1 year')</pre>
   </dd>
 
   <dt>port</dt>
@@ -172,9 +164,7 @@ using the API to override some of the configuration values.
     As you might imagine, on which port number do you want to run the server.
     Defaults to <code>8080</code>.
 
-    <code>
-      versions.set('port', '8080');
-    </code>
+    <pre>versions.set('port', '8080');</pre>
   </dd>
 
   <dt>origin servers</dt>
@@ -182,9 +172,7 @@ using the API to override some of the configuration values.
     An array of of servers objects that is used to fetch resources from that is
     not found in the <code>directory</code> property.
 
-    <code>
-      versions.set('origin servers', { url: "http://example.com", name: "foo" });
-    </code>
+    <pre>versions.set('origin servers', { url: "http://example.com", name: "foo" });</pre>
   </dd>
 
   <dt>version</dt>
@@ -193,9 +181,7 @@ using the API to override some of the configuration values.
     synced between clients so cache can be expired on demand and still have the
     same version number/cache hits between different clients.
 
-    <code>
-      versions.set('version', '0.0.0');
-    </code>
+    <pre>versions.set('version', '0.0.0');</pre>
   </dd>
 
   <dt>aliases</dt>
@@ -204,9 +190,7 @@ using the API to override some of the configuration values.
     be spread accross multiple subdomains/domains. You can supply origins
     multiple origin servers that the client will use to distribute the assets.
     
-    <code>
-      versions.set('aliases', 'http://example.org');
-    </code>
+    <pre>versions.set('aliases', 'http://example.org');</pre>
   </dt>
 
   <dt>plugins</dt>
@@ -217,9 +201,7 @@ using the API to override some of the configuration values.
     versions or custom connect compatible nodejs modules that need to be
     required.
 
-    <code>
-      versions.set('plugins', [{ name: 'logger', config: 'short' }, 'logger']);
-    </code>
+    <pre>versions.set('plugins', [{ name: 'logger', config: 'short' }, 'logger']);</pre>
   </dd>
 
   <dt>sync</dt>
@@ -227,9 +209,7 @@ using the API to override some of the configuration values.
     Syncronise configuration between client and server. If you are using
     multiple servers also set the redis configuration.
 
-    <code>
-      versions.set('sync', true);
-    </code>
+    <pre>versions.set('sync', true);</pre>
   </dd>
 
   <dt>redis</dt>
