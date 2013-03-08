@@ -44,7 +44,7 @@ assets will be served from the browser cache instead of the server.
 
 Gzip is enabled on every compatible file format, even if the origin server
 doesn't support gzip. In addition to that, we have disabled gzip for IE 5 and
-IE6 without service pack 2 as it's known to impropperly cache it. We also have
+IE6 without service pack 2 as it is known to improperly cache it. We also have
 detection for obfuscated gzip headers as researched by the [Yahoo performance
 team](http://developer.yahoo.com/blogs/ydn/posts/2010/12/pushing-beyond-gzipping/).
 
@@ -56,7 +56,7 @@ endless.
 
 #### Metrics
 
-Everybody loves stats, thats why we are gathering metrics about the requests and
+Everybody loves stats, that's why we are gathering metrics about the requests and
 the state of the server. These metrics can be accessed through the REST API.
 
 #### Client API
@@ -152,7 +152,7 @@ using the API to override some of the configuration values.
   <dd>
     <p>
       How long should we keep items in our internal (memory) cache. It accepts a
-      numeric value as miliseconds or a human readable string like
+      numeric value as milliseconds or a human readable string like
       <code>10 hours</code> or <code>90 minutes</code>. Defaults to 1 hour.
     </p>
 
@@ -184,7 +184,7 @@ using the API to override some of the configuration values.
   <dt>origin servers</dt>
   <dd>
     <p>
-      An array of of server objects that is used to fetch resources from that
+      An array of of server objects that is used to fetch resources that
       are not found in the <code>directory</code> property.
     </p>
 
@@ -205,8 +205,8 @@ using the API to override some of the configuration values.
   <dt>aliases</dt>
   <dd>
     <p>
-      In order to parallize the downloading of assets in the browser they should
-      be spread accross multiple subdomains/domains. You can supply 
+      In order to parallelize the downloading of assets in the browser they should
+      be spread across multiple subdomains/domains. You can supply 
       multiple origin servers that the client will use to distribute the assets.
     </p>
 
@@ -216,7 +216,7 @@ using the API to override some of the configuration values.
   <dt>log level</dt>
   <dd>
     <p>
-      As versions is inteded to run as a stand alone server it comes with a logger
+      As versions is intended to run as a standalone server it comes with a logger
       that outputs some useful information. You can control the amount of output
       by changing the log level. The default value is log. Please check the
       <a href="http://github.com/observing/devnull#logging-methods-and-levels">dev/null node.js logger</a>
@@ -229,7 +229,7 @@ using the API to override some of the configuration values.
   <dt>plugins</dt>
   <dd>
     <p>
-      Versions is build on top of the connect framework and is configured to use the
+      Versions is built on top of the connect framework and is configured to use the
       minimal amount of plugins to get the job done. The plugins array allows
       you to specify extra middleware layers that you want to have loaded into
       versions or custom connect compatible nodejs modules that need to be
@@ -271,7 +271,7 @@ using the API to override some of the configuration values.
         Optional auth/password to access your redis server.
       <li>
         <strong>namespace</strong>
-        The key that should be used to store the configuration and be used as
+        The key that should be used to store the configuration and be used as the
         channel name for the pub/sub channel. Defaults to <code>versions</code>
       </li>
     </ul>
@@ -301,7 +301,7 @@ this as default configuration.
     "logger",
     "custom-nodejs-module",
     { 
-      "name": "custom-nodejs-moduel",
+      "name": "custom-nodejs-module",
       "config": {
         "custom": "configuration options that will be feed in to the middleware"
       }
@@ -316,7 +316,7 @@ In addition to reading your `versions.json` file for the configuration it is als
 possible to set the configuration using dedicated API methods or the
 `versions#set` method. The `versions#set` method expects 2 arguments, the first
 argument is the name of the configuration key that you want to update and the
-second value in the actual value:
+second value is the actual value:
 
 ```js
 var versions = require('versions');
