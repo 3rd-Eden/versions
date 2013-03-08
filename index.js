@@ -167,14 +167,14 @@ Versions.prototype.layer = function layer(name, options) {
   // Use our own middleware collection instead
   try { middleware = require('./lib/'+ name); }
   catch (e) {
-    this.logger.debug('Failed to load '+ name, e);
+    this.logger.debug('[versions] Failed to load '+ name, e);
 
     // If it's not found it might be a third party module
     try { middleware = require(name); }
     catch (e) {
-      this.logger.error('Unable to load the '+ name +' middleware');
-      this.logger.error('Please make sure that the module is installed');
-      this.logger.error('Continuing without the '+ name +' middleware');
+      this.logger.error('[versions] Unable to load the '+ name +' middleware');
+      this.logger.error('[versions] Please make sure that the module is installed');
+      this.logger.error('[versions] Continuing without the '+ name +' middleware');
       return this;
     }
   }
@@ -182,7 +182,7 @@ Versions.prototype.layer = function layer(name, options) {
   // This middleware layer was probably not exported using `module.exports` and
   // requires an extra configuration step
   if (options || middleware.length === 1) {
-    this.logger.debug('Configuring the '+ name +' middleware');
+    this.logger.debug('[versions] Configuring the '+ name +' middleware');
     middleware = middleware.call(this, options);
   }
 
@@ -574,18 +574,18 @@ Versions.prototype.sync = function sync() {
     // Setup our subscription channel so we can start listening for events.
     sub.on('message', function message(channel, data) {
       if (channel !== namespace) {
-        return self.logger.error('Received a channel that we not registered for');
+        return self.logger.error('[versions] Received a channel that we not registered for');
       }
 
       // Prevent invalid data to be transmitted
       try { data = JSON.parse(data); }
       catch (e) {
-        return self.logger.error('Failed to parse PUB/SUB message', data);
+        return self.logger.error('[versions] Failed to parse PUB/SUB message', data);
       }
 
       // Make sure that it's valid data
       if (!data || !data.key || !data.value) {
-        return self.logger.error('Received an invalid data structure', data);
+        return self.logger.error('[versions] Received an invalid data structure', data);
       }
 
       // Make sure that the value actually differs from our own implementation.
@@ -609,7 +609,7 @@ Versions.prototype.sync = function sync() {
         }));
 
         atomic.exec(function stored(err) {
-          if (err) self.logger.error('Failed to sync the configuration in the cloud');
+          if (err) self.logger.error('[versions] Failed to sync the configuration in the cloud');
 
           self.emit('stored:'+ key, err);
         });
@@ -621,11 +621,11 @@ Versions.prototype.sync = function sync() {
       // Another connection check checkpoint
       checkpoint();
 
-      if (err) return self.logger.warning('Could sync the initial config from the cloud');
-      if (!config) return self.logger.debug('No config in cloud');
+      if (err) return self.logger.warning('[versions] Could sync the initial config from the cloud');
+      if (!config) return self.logger.debug('[versions] No config in cloud');
 
       try { config = JSON.parse(config); }
-      catch (e) { return self.logger.error('Failed to parse initial config'); }
+      catch (e) { return self.logger.error('[versions] Failed to parse initial config'); }
 
       self.syncing.forEach(function forEach(key) {
         self.set(key, config[key], true);
@@ -669,6 +669,11 @@ Versions.prototype.factory = function factory() {
     client.on('error', function error(err) {
       self.logger.error('[versions] The %s connection received an error', type);
       self.logger.error('[versions]', err);
+    });
+
+    // Setup a close listener
+    client.once('end', function end() {
+      self.logger.info('[versions] The %s connection has shutdown', type);
     });
 
     return conn;
