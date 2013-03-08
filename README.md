@@ -213,6 +213,19 @@ using the API to override some of the configuration values.
     <pre>versions.set('aliases', 'http://example.org');</pre>
   </dt>
 
+  <dt>log level</dt>
+  <dd>
+    <p>
+      As versions is inteded to ran as stand alone server it comes with a logger
+      that outputs some useful information. You can control the amount of output
+      by changing the log level. The default value is log. Please check the
+      <a href="/observing/devnull#logging-methods-and-levels">dev/null node.js logger</a>
+      for the supported log levels.
+    </p>
+  
+    <pre>versions.set('log level', 'debug');</pre>
+  </dd>
+
   <dt>plugins</dt>
   <dd>
     <p>
@@ -328,6 +341,34 @@ API       | Configuration key
 path      | directory
 lifetime  | max age
 expire    | expire internal cache
+
+### Server example
+
+```javascript
+'use strict';
+
+// require versions, if you have `versions.json` in the same folder as your
+// `package.json` it will load that as default configuration for you
+var versions = require('versions');
+
+// If you don't have a versions.json or want to override some values:
+versions.set('log level', 'debug')
+        .set('auth', 'helloW0nderW0man');
+
+// Or use some of the nicer API sugar
+versions.path('./public').lifetime('30 days').expire('10 hours');
+
+// After you have configured everything that you want just start listening on
+// the server.
+versions.listen(8080);
+```
+
+But it can be much shorter if you don't have to overide any configuration from
+your `versions.json` file:
+
+```javascript
+require('versions').listen();
+```
 
 ## License
 
