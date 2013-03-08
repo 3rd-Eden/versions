@@ -102,17 +102,16 @@ node_modules folder). But you can also configure the module through a chainable
 API. And the last would be a hybrid of those. Using a configuration file and
 using the API to override some of the configuration values.
 
-### versions.json
-
-The versions file can configure different aspects of the module. The following
-properties can be configured:
-
 <dl>
   <dt>auth</dd>
   <dd>
     The <code>auth</code> property is a simple security token that you can use
     to secure your versions REST API. After setting this property it requires an
     <code>?auth=<prop></code> parameter to be used to access the API.
+
+    <code>
+      versions.set('auth', 'Sup3rSecr3tP4z5w0rdy0');
+    </code>
   </dd>
 
   <dt>blacklisted extensions</dt>
@@ -121,6 +120,10 @@ properties can be configured:
     server. You can for example black list <code>.conf</code> files or maybe
     some other random files. Please note that people can still fetch these files
     directly from the origin server.
+
+    <code>
+      versions.set('blacklisted extensions', ['.conf', '.log', '.gz']);
+    </code>
   </dd>
 
   <dt>cors</dt>
@@ -128,6 +131,10 @@ properties can be configured:
     Set custom <code>Access-Control-Allow-Origin</code> headers. The default
     value is <code>*</code> so all values are allowed. If you only want allow
     access from a specific domain set the domain here.
+
+    <code>
+      versions.set('cors', '*.example.com');
+    </code>
   </dd>
 
   <dt>directory</dt>
@@ -135,14 +142,21 @@ properties can be configured:
     A directory that is relative the module that required versions that is used
     to serve static content. If you want this directory to be relative to a
     different path. You can see a <code>root</code> property.
+
+    <code>
+      versions.set('directory', './public');
+    </code>
   </dd>
 
   <dt>expire internal cache</dt>
   <dd>
     How long should we keep items in our internal (memory) cache. It accepts a
     numeric value as miliseconds or a human readable string like
-    <code>10 hours</code> or <code>90 minutes</code>. Defaults to
-    <code>1 hour</code>.
+    <code>10 hours</code> or <code>90 minutes</code>. Defaults to 1 hour.
+
+    <code>
+      versions.set('expire internal cache', '2 days');
+    </code>
   </dd>
 
   <dt>max age</dt>
@@ -157,6 +171,10 @@ properties can be configured:
   <dd>
     As you might imagine, on which port number do you want to run the server.
     Defaults to <code>8080</code>.
+
+    <code>
+      versions.set('port', '8080');
+    </code>
   </dd>
 
   <dt>origin servers</dt>
@@ -164,7 +182,9 @@ properties can be configured:
     An array of of servers objects that is used to fetch resources from that is
     not found in the <code>directory</code> property.
 
-    <code>{ url: "http://example.com", name: "foo" }</code>
+    <code>
+      versions.set('origin servers', { url: "http://example.com", name: "foo" });
+    </code>
   </dd>
 
   <dt>version</dt>
@@ -172,6 +192,10 @@ properties can be configured:
     The version number of the cache that can be automatically increased and
     synced between clients so cache can be expired on demand and still have the
     same version number/cache hits between different clients.
+
+    <code>
+      versions.set('version', '0.0.0');
+    </code>
   </dd>
 
   <dt>aliases</dt>
@@ -179,11 +203,33 @@ properties can be configured:
     In order to parallize the downloading of assets in the browser it's should
     be spread accross multiple subdomains/domains. You can supply origins
     multiple origin servers that the client will use to distribute the assets.
+    
+    <code>
+      versions.set('aliases', 'http://example.org');
+    </code>
   </dt>
+
+  <dt>plugins</dt>
+  <dd>
+    Versions is build ontop of the connect framework is configured to use the
+    minimal amount of plugins to get the job done. The plugins array allows you
+    to specify extra middleware layers that you want to have loaded in to
+    versions or custom connect compatible nodejs modules that need to be
+    required.
+
+    <code>
+      versions.set('plugins', [{ name: 'logger', config: 'short' }, 'logger']);
+    </code>
+  </dd>
 
   <dt>sync</dt>
   <dd>
-    Syncronise configuration between client and server.
+    Syncronise configuration between client and server. If you are using
+    multiple servers also set the redis configuration.
+
+    <code>
+      versions.set('sync', true);
+    </code>
   </dd>
 
   <dt>redis</dt>
@@ -213,7 +259,11 @@ properties can be configured:
   </dd>
 </dl>
 
-Full example of a versions.json:
+### versions.json
+
+When you require the versions module it will try to find a `versions.json` (or
+`versions.js` with a module.exports pattern) file in your root folder and use
+this as default configuration.
 
 ```js
 {
@@ -227,7 +277,17 @@ Full example of a versions.json:
     { "url": "https://www.nodejitsu.com", "id": "home" },
     { "url": "https://webops.nodejitsu.com", "id": "webops" }
   ],
-  "port": 8080
+  "port": 8080,
+  "plugins": [
+    "logger",
+    "custom-nodejs-module",
+    { 
+      "name": "custom-nodejs-moduel",
+      "config": {
+        "custom": "configuration options that will be feed in to the middleware"
+      }
+    }
+  ]
 }
 ```
 
@@ -250,7 +310,7 @@ Versions also provides you with some API sugar to make configuring a bit more
 human readable:
 
 ```js
-versions.path('/public').expire('10 hours');
+versions.path('/public').expire('10 hours').se('sync', true);
 ```
 
 The following API methods map directly to configuration (see versions.json
