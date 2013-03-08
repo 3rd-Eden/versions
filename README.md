@@ -219,7 +219,7 @@ using the API to override some of the configuration values.
       As versions is inteded to ran as stand alone server it comes with a logger
       that outputs some useful information. You can control the amount of output
       by changing the log level. The default value is log. Please check the
-      <a href="/observing/devnull#logging-methods-and-levels">dev/null node.js logger</a>
+      <a href="http://github.com/observing/devnull#logging-methods-and-levels">dev/null node.js logger</a>
       for the supported log levels.
     </p>
   
