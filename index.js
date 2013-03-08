@@ -303,8 +303,8 @@ Versions.prototype.write = function write(req, res, data) {
   // Check if we have a GZIP version of the content.
   if ('compressed' in data) {
     // Force GZIP over deflate as it is more stable.
-    if (this.allows('deflate', req)) type = 'deflate';
-    if (this.allows('gzip', req)) type = 'gzip';
+    if (this.allows('deflate', req) && data.compressed.deflate) type = 'deflate';
+    if (this.allows('gzip', req) && data.compressed.gzip) type = 'gzip';
 
     if (type) {
       res.setHeader('Content-Encoding', type);
@@ -401,9 +401,7 @@ Versions.prototype.compress = function compress(type, data, callback) {
   var compressed = Object.create(null);
 
   function iterator(error, content, method) {
-    if (error) return callback(error, compressed);
-
-    compressed[method] = content;
+    compressed[method] = !error ? content : null;
     if (Object.keys(compressed).length === 2) callback(null, compressed);
   }
 
