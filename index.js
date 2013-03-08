@@ -38,7 +38,6 @@ function Versions(options) {
 
   // Read in the various of configurations that we want to merge in to our own
   // configuration object.
-  //
   if (!options.cloned) {
     this.read('../../node_modules/package.json');    // For version number
     this.read('./versions.json');                    // For our defaults
@@ -298,16 +297,21 @@ Versions.prototype.initialize = function initialize(type) {
  */
 Versions.prototype.write = function write(req, res, data) {
   var age = this.get('max age')
-    , body = data.buffer;
+    , body = data.buffer
+    , type;
 
   // Check if we have a GZIP version of the content.
-  if ('gzip' in data) {
-    if (this.allows('gzip', req)) {
-      res.setHeader('Content-Encoding', 'gzip');
-      body = data.gzip;
-      this.metrics.incr('gzip');
+  if ('compressed' in data) {
+    // Force GZIP over deflate as it is more stable.
+    if (this.allows('deflate', req)) type = 'deflate';
+    if (this.allows('gzip', req)) type = 'gzip';
+
+    if (type) {
+      res.setHeader('Content-Encoding', type);
+      body = data.compressed[type];
+      this.metrics.incr(type);
     } else {
-      this.metrics.incr('gzip blocked');
+      this.metrics.incr('compression blocked');
     }
   }
 
@@ -330,7 +334,7 @@ Versions.prototype.write = function write(req, res, data) {
  * @returns {Boolean}
  * @api public
  */
-Versions.prototype.allows = function supports(what, req) {
+Versions.prototype.allows = function allows(what, req) {
   var headers = req.headers;
 
   switch (what) {
@@ -360,6 +364,9 @@ Versions.prototype.allows = function supports(what, req) {
       }
 
       return obfuscated;
+
+    case 'deflate':
+      return ~(headers['accept-encoding'] || '').toLowerCase().indexOf('deflate');
 
     // Do we allow this extension to be served from our server?
     case 'extension':
@@ -391,9 +398,19 @@ Versions.prototype.allows = function supports(what, req) {
  * @api private
  */
 Versions.prototype.compress = function compress(type, data, callback) {
+  var compressed = Object.create(null);
+
+  function iterator(error, content, method) {
+    if (error) return callback(error, compressed);
+
+    compressed[method] = content;
+    if (Object.keys(compressed).length === 2) callback(null, compressed);
+  }
+
   // Only these types of content should be gzipped.
   if (/json|text|javascript|xml/i.test(type || '') || type in this.compressTypes) {
-    zlib.gzip(data, callback);
+    zlib.gzip(data, function (error, content) { iterator(error, content, 'gzip'); });
+    zlib.deflate(data, function (error, content) { iterator(error, content, 'deflate'); });
   } else {
     process.nextTick(callback);
   }

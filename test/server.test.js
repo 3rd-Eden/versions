@@ -247,6 +247,7 @@ describe('versions()', function () {
 
     it('sets the correct headers');
     it('decided which content to use');
+    it('prefers gzip over deflate');
   });
 
   describe('#allows', function () {
@@ -374,9 +375,11 @@ describe('versions()', function () {
 
       versions.compress('text/javascript', buffer, function (err, data) {
         expect(err).to.equal(null);
-        expect(Buffer.isBuffer(data)).to.equal(true);
-        expect(data.toString()).to.not.equal(buffer.toString());
-        expect(data.length).to.be.below(buffer.length);
+        Object.keys(data).forEach(function type (key) {
+          expect(Buffer.isBuffer(data[key])).to.equal(true);
+          expect(data[key].toString()).to.not.equal(buffer.toString());
+          expect(data[key].length).to.be.below(buffer.length);
+        });
 
         done();
       });
