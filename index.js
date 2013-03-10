@@ -366,7 +366,7 @@ Versions.prototype.allows = function allows(what, req) {
       return obfuscated;
 
     case 'deflate':
-      return ~(headers['accept-encoding'] || '').toLowerCase().indexOf('deflate');
+      return !!~(headers['accept-encoding'] || '').toLowerCase().indexOf('deflate');
 
     // Do we allow this extension to be served from our server?
     case 'extension':

@@ -3,8 +3,11 @@ describe('versions()', function () {
 
   var chai = require('chai')
     , path = require('path')
+    , sinon = require('sinon')
+    , sinonChai = require('sinon-chai')
     , expect = chai.expect;
 
+  chai.use(sinonChai);
   chai.Assertion.includeStack = true;
 
   describe('initialization', function () {
@@ -235,19 +238,87 @@ describe('versions()', function () {
   });
 
   describe('#write', function () {
-    var versions;
+    var versions, req, res, data;
+
     before(function () {
       versions = require('../').clone();
       versions.logger.notification = 8;
+      versions.initialize('server');
+    });
+
+    beforeEach(function () {
+      res = {
+          setHeader: sinon.stub()
+        , end: sinon.stub()
+      };
+
+      data = {
+          buffer: 'test'
+        , 'content-type': 'application/json'
+        , 'last-modified': 1234
+        , compressed: {
+              deflate: 'body with deflated content'
+            , gzip: 'body with gzipped content'
+          }
+      };
     });
 
     after(function (done) {
       versions.end(done);
     });
 
-    it('sets the correct headers');
-    it('decided which content to use');
-    it('prefers gzip over deflate');
+    it('sets the correct headers', function () {
+      var age = 86400000
+        , exp = new Date(Date.now() + age).toUTCString();
+      req = { headers: { 'accept-encoding': 'cakes' } };
+      versions.set('max age', age).write(req, res, data);
+
+      expect(res.setHeader.callCount).to.be.equal(5);
+      expect(res.setHeader).to.be.calledWith('Expires', exp);
+      expect(res.setHeader).to.be.calledWith('Cache-Control', 'max-age='+ age +', public');
+      expect(res.setHeader).to.be.calledWith('Last-Modified', data['last-modified']);
+      expect(res.setHeader).to.be.calledWith('Content-Type', data['content-type']);
+      expect(res.setHeader).to.be.calledWith('Content-Length', data.buffer.length);
+    });
+
+    it('returns uncompressed buffer if non requested', function () {
+      req = { headers: { 'accept-encoding': 'cakes' } };
+      versions.write(req, res, data);
+
+      expect(res.setHeader.callCount).to.be.equal(5);
+      expect(res.end).to.be.calledWith('test');
+      expect(res.end).to.be.calledOnce;
+    });
+
+    it('returns uncompressed buffer no compression available', function () {
+      req = { headers: { 'accept-encoding': 'gzip,deflate' } };
+      data = { buffer: 'test' };
+      versions.write(req, res, data);
+
+      expect(res.setHeader.callCount).to.be.equal(5);
+      expect(res.end).to.be.calledWith('test');
+      expect(res.end).to.be.calledOnce;
+    });
+
+    it('prefers gzip over deflate', function () {
+      req = { headers: { 'accept-encoding': 'gzip,deflate' } };
+      versions.write(req, res, data);
+
+      expect(res.setHeader).to.be.calledWith('Content-Encoding', 'gzip');
+      expect(res.setHeader.callCount).to.be.equal(6);
+      expect(res.end).to.be.calledWith('body with gzipped content');
+      expect(res.end).to.be.calledOnce;
+    });
+
+    it('returns compression type deflate if requested', function () {
+      req = { headers: { 'accept-encoding': 'deflate' } };
+      versions.write(req, res, data);
+
+      expect(res.setHeader).to.be.calledWith('Content-Encoding', 'deflate');
+      expect(res.end).to.be.calledWith('body with deflated content');
+      expect(res.setHeader.callCount).to.be.equal(6);
+      expect(res.end).to.be.calledOnce;
+    });
   });
 
   describe('#allows', function () {
@@ -279,6 +350,11 @@ describe('versions()', function () {
     it('detects gzip support', function () {
       expect(versions.allows('gzip', accept)).to.equal(true);
       expect(versions.allows('gzip', decline)).to.equal(false);
+    });
+
+    it('detects deflate support', function () {
+      expect(versions.allows('deflate', accept)).to.equal(true);
+      expect(versions.allows('deflate', decline)).to.equal(false);
     });
 
     it('ignores IE6 without service pack', function () {
@@ -375,6 +451,9 @@ describe('versions()', function () {
 
       versions.compress('text/javascript', buffer, function (err, data) {
         expect(err).to.equal(null);
+        expect(data).to.have.property('gzip');
+        expect(data).to.have.property('deflate');
+
         Object.keys(data).forEach(function type (key) {
           expect(Buffer.isBuffer(data[key])).to.equal(true);
           expect(data[key].toString()).to.not.equal(buffer.toString());
