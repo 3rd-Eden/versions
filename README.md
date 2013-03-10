@@ -37,14 +37,14 @@ static assets to a separate server in order to get them cached.
 #### Set caching headers for files
 
 In order to reduce the amount of HTTP requests that a browser would do for your
-files it's automatically setting the appropriate caching headers. This way you
+files, versions automatically sets the appropriate caching headers. This way you
 assets will be served from the browser cache instead of the server.
 
 #### Advanced gzipping
 
-Gzip is enabled on every compatible file format. Even if the origin server
+Gzip is enabled on every compatible file format, even if the origin server
 doesn't support gzip. In addition to that, we have disabled gzip for IE 5 and
-IE6 without service pack 2 as it's known to impropperly cache it. We also have
+IE6 without service pack 2 as it is known to improperly cache it. We also have
 detection for obfuscated gzip headers as researched by the [Yahoo performance
 team](http://developer.yahoo.com/blogs/ydn/posts/2010/12/pushing-beyond-gzipping/).
 
@@ -56,7 +56,7 @@ endless.
 
 #### Metrics
 
-Everybody loves stats, thats why we are gathering metrics about the requests and
+Everybody loves stats, that's why we are gathering metrics about the requests and
 the state of the server. These metrics can be accessed through the REST API.
 
 #### Client API
@@ -102,95 +102,160 @@ node_modules folder). But you can also configure the module through a chainable
 API. And the last would be a hybrid of those. Using a configuration file and
 using the API to override some of the configuration values.
 
-### versions.json
-
-The versions file can configure different aspects of the module. The following
-properties can be configured:
-
 <dl>
   <dt>auth</dd>
   <dd>
-    The <code>auth</code> property is a simple security token that you can use
-    to secure your versions REST API. After setting this property it requires an
-    <code>?auth=<prop></code> parameter to be used to access the API.
+    <p>
+      The <code>auth</code> property is a simple security token that you can use
+      to secure your versions REST API. After setting this property it requires
+      an <code>?auth=<prop></code> parameter to be used to access the API.
+    </p>
+
+    <pre>versions.set('auth', 'Sup3rSecr3tP4z5w0rdy0');</pre>
   </dd>
 
   <dt>blacklisted extensions</dt>
   <dd>
-    Black list extensions that you do want to have pulled from your origin
-    server. You can for example black list <code>.conf</code> files or maybe
-    some other random files. Please note that people can still fetch these files
-    directly from the origin server.
+    <p>
+      Black list extensions that you do not want to have pulled from your origin
+      server. You can for example black list <code>.conf</code> files or maybe
+      some other random files. Please note that people can still fetch these
+      files directly from the origin server.
+    </p>
+
+    <pre>versions.set('blacklisted extensions', ['.conf', '.log', '.gz']);</pre>
   </dd>
 
   <dt>cors</dt>
   <dd>
-    Set custom <code>Access-Control-Allow-Origin</code> headers. The default
-    value is <code>*</code> so all values are allowed. If you only want allow
-    access from a specific domain set the domain here.
+    <p>
+      Set custom <code>Access-Control-Allow-Origin</code> headers. The default
+      value is <code>*</code> so all values are allowed. If you only want to allow
+      access from a specific domain set the domain here.
+    </p>
+
+    <pre>versions.set('cors', '*.example.com');</pre>
   </dd>
 
   <dt>directory</dt>
   <dd>
-    A directory that is relative the module that required versions that is used
-    to serve static content. If you want this directory to be relative to a
-    different path. You can see a <code>root</code> property.
+    <p>
+      A directory that is relative to the module that required versions that is
+      used to serve static content. If you want this directory to be relative to
+      a different path. You can set a <code>root</code> property.
+    </p>
+
+    <pre>versions.set('directory', './public');</pre>
   </dd>
 
   <dt>expire internal cache</dt>
   <dd>
-    How long should we keep items in our internal (memory) cache. It accepts a
-    numeric value as miliseconds or a human readable string like
-    <code>10 hours</code> or <code>90 minutes</code>. Defaults to
-    <code>1 hour</code>.
+    <p>
+      How long should we keep items in our internal (memory) cache. It accepts a
+      numeric value as milliseconds or a human readable string like
+      <code>10 hours</code> or <code>90 minutes</code>. Defaults to 1 hour.
+    </p>
+
+    <pre>versions.set('expire internal cache', '2 days');</pre>
   </dd>
 
   <dt>max age</dt>
   <dd>
-    How long should the browser cache the files? It accepts a numeric value as
-    miliseconds or a human readable string like <code>10 hours</code> or
-    <code>90 days</code>. Defaults to <code>30 days</code>. Please note that
-    this value should not be longer then a year.
+    <p>
+      How long should the browser cache the files? It accepts a numeric value as
+      miliseconds or a human readable string like <code>10 hours</code> or
+      <code>90 days</code>. Defaults to <code>30 days</code>. Please note that
+      this value should not be longer then a year.
+    </p>
+
+    <pre>versions.set('max age', '1 year')</pre>
   </dd>
 
   <dt>port</dt>
   <dd>
-    As you might imagine, on which port number do you want to run the server.
-    Defaults to <code>8080</code>.
+    <p>
+      As you might imagine, on which port number do you want to run the server.
+      Defaults to <code>8080</code>.
+    </p>
+
+    <pre>versions.set('port', '8080');</pre>
   </dd>
 
   <dt>origin servers</dt>
   <dd>
-    An array of of servers objects that is used to fetch resources from that is
-    not found in the <code>directory</code> property.
+    <p>
+      An array of of server objects that is used to fetch resources that
+      are not found in the <code>directory</code> property.
+    </p>
 
-    <code>{ url: "http://example.com", name: "foo" }</code>
+    <pre>versions.set('origin servers', { url: "http://example.com", name: "foo" });</pre>
   </dd>
 
   <dt>version</dt>
   <dd>
-    The version number of the cache that can be automatically increased and
-    synced between clients so cache can be expired on demand and still have the
-    same version number/cache hits between different clients.
+    <p>
+      The version number of the cache that can be automatically increased and
+      synced between clients so cache can be expired on demand and still have
+      the same version number/cache hits between different clients.
+    </p>
+
+    <pre>versions.set('version', '0.0.0');</pre>
   </dd>
 
   <dt>aliases</dt>
   <dd>
-    In order to parallize the downloading of assets in the browser it's should
-    be spread accross multiple subdomains/domains. You can supply origins
-    multiple origin servers that the client will use to distribute the assets.
+    <p>
+      In order to parallelize the downloading of assets in the browser they should
+      be spread across multiple subdomains/domains. You can supply 
+      multiple origin servers that the client will use to distribute the assets.
+    </p>
+
+    <pre>versions.set('aliases', 'http://example.org');</pre>
   </dt>
+
+  <dt>log level</dt>
+  <dd>
+    <p>
+      As versions is intended to run as a standalone server it comes with a logger
+      that outputs some useful information. You can control the amount of output
+      by changing the log level. The default value is log. Please check the
+      <a href="http://github.com/observing/devnull#logging-methods-and-levels">dev/null node.js logger</a>
+      for the supported log levels.
+    </p>
+  
+    <pre>versions.set('log level', 'debug');</pre>
+  </dd>
+
+  <dt>plugins</dt>
+  <dd>
+    <p>
+      Versions is built on top of the connect framework and is configured to use the
+      minimal amount of plugins to get the job done. The plugins array allows
+      you to specify extra middleware layers that you want to have loaded into
+      versions or custom connect compatible nodejs modules that need to be
+      required.
+    </p>
+
+    <pre>versions.set('plugins', [{ name: 'logger', config: 'short' }, 'logger']);</pre>
+  </dd>
 
   <dt>sync</dt>
   <dd>
-    Syncronise configuration between client and server.
+    <p>
+      Synchronise configuration between client and server. If you are using
+      multiple servers also set the redis configuration.
+    </p>
+
+    <pre>versions.set('sync', true);</pre>
   </dd>
 
   <dt>redis</dt>
   <dd>
-    In order to enable a truely distributed cache cloud you can opt in to use a
-    Redis back-end for syncing purposes. This object accepts the following
-    properties:
+    <p>
+      In order to enable a truely distributed cache cloud you can opt in to use
+      a Redis back-end for syncing purposes. This object accepts the following
+      properties:
+    </p>
 
     <ul>
       <li>
@@ -206,14 +271,18 @@ properties can be configured:
         Optional auth/password to access your redis server.
       <li>
         <strong>namespace</strong>
-        The key that should be used to store the configuration and be used as
+        The key that should be used to store the configuration and be used as the
         channel name for the pub/sub channel. Defaults to <code>versions</code>
       </li>
     </ul>
   </dd>
 </dl>
 
-Full example of a versions.json:
+### versions.json
+
+When you require the versions module it will try to find a `versions.json` (or
+`versions.js` with a module.exports pattern) file in your root folder and use
+this as default configuration.
 
 ```js
 {
@@ -227,17 +296,27 @@ Full example of a versions.json:
     { "url": "https://www.nodejitsu.com", "id": "home" },
     { "url": "https://webops.nodejitsu.com", "id": "webops" }
   ],
-  "port": 8080
+  "port": 8080,
+  "plugins": [
+    "logger",
+    "custom-nodejs-module",
+    { 
+      "name": "custom-nodejs-module",
+      "config": {
+        "custom": "configuration options that will be feed in to the middleware"
+      }
+    }
+  ]
 }
 ```
 
 ### Configuration API
 
-In addition to reading your `versions.json` file for the configuration it's also
+In addition to reading your `versions.json` file for the configuration it is also
 possible to set the configuration using dedicated API methods or the
 `versions#set` method. The `versions#set` method expects 2 arguments, the first
 argument is the name of the configuration key that you want to update and the
-second value in the actual value:
+second value is the actual value:
 
 ```js
 var versions = require('versions');
@@ -250,7 +329,7 @@ Versions also provides you with some API sugar to make configuring a bit more
 human readable:
 
 ```js
-versions.path('/public').expire('10 hours');
+versions.path('/public').expire('10 hours').se('sync', true);
 ```
 
 The following API methods map directly to configuration (see versions.json
@@ -262,6 +341,34 @@ API       | Configuration key
 path      | directory
 lifetime  | max age
 expire    | expire internal cache
+
+### Server example
+
+```javascript
+'use strict';
+
+// require versions, if you have `versions.json` in the same folder as your
+// `package.json` it will load that as default configuration for you
+var versions = require('versions');
+
+// If you don't have a versions.json or want to override some values:
+versions.set('log level', 'debug')
+        .set('auth', 'helloW0nderW0man');
+
+// Or use some of the nicer API sugar
+versions.path('./public').lifetime('30 days').expire('10 hours');
+
+// After you have configured everything that you want just start listening on
+// the server.
+versions.listen(8080);
+```
+
+But it can be much shorter if you don't have to overide any configuration from
+your `versions.json` file:
+
+```javascript
+require('versions').listen();
+```
 
 ## License
 

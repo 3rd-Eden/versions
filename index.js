@@ -636,7 +636,7 @@ Versions.prototype.sync = function sync() {
       // Another connection check checkpoint
       checkpoint();
 
-      if (err) return self.logger.warning('[versions] Could sync the initial config from the cloud');
+      if (err) return self.logger.warning('[versions] Could not sync the initial config from the cloud');
       if (!config) return self.logger.debug('[versions] No config in cloud');
 
       try { config = JSON.parse(config); }
