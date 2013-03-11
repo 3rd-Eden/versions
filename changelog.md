@@ -1,3 +1,11 @@
+### 0.1.5
+- The client will automatically transform //<domain> in to https://<domain> when
+  you tag a `.css` file as relative protocols cause a double download of the
+  file in Internet Explorer.
+- All stdout from versions is now prefixed with `[versions]`
+- Support for deflate instead of just gzip. This will only be used if the
+  `accept-encoding` headers doesn't have gzip.
+
 ### 0.1.4
 - Added support for tagging origin servers using `/id:<origin id>/`
 - Fixed a bug where the assests where not receiving gzip compression
