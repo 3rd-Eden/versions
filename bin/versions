@@ -2,10 +2,10 @@
 
 var version = require('../package.json').version;
 
-require('../').clone().path('../').lifetime('10 hours').listen(8081, function (err) {
-  if (!err) {
-    return console.log('[versions] Started versions/'+ version, 'on port 8081');
-  }
-
-  return console.error('[versions] Failed to start Versions');
-});
+require('../')
+  .path('../')
+  .lifetime('10 hours')
+  .listen(8081, function (err) {
+    if (err) return this.logger.error('[versions] Failed to start Versions');
+    this.logger.log('[versions] Started versions/'+ version, 'on port 8081');
+  });

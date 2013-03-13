@@ -228,7 +228,16 @@ Versions.prototype.listen = function listen(port, callback) {
   // Only add static server support if it a `directory` was specified in the
   // configuration.
   if (this.get('directory')) {
-    this.layer('static', this.get('static'), { maxAge: this.get('max age') });
+    // Check if the directory exists, we can just lazy require the fs module
+    // here as the listen call is done during the boot strapping of the server.
+    if (require('fs').existsSync(this.get('static'))) {
+      this.layer('static', this.get('static'), { maxAge: this.get('max age') });
+    } else {
+      this.logger.error(
+          '[versions] The %s does not exists, local file serving is disabled'
+        , this.get('static')
+      );
+    }
   }
 
   // Routing should only be enabled with an `auth` configuration.

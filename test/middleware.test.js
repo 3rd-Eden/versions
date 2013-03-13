@@ -37,6 +37,11 @@ describe('version.layer() integration', function () {
     });
   });
 
+  describe('.layer(static)', function () {
+    it('logs an error when the supplied static directory does not exist');
+    it('serves local hosted files');
+  });
+
   describe('.layer(initalize)', function () {
     it('sets the proper headers', function (done) {
       versions.app.request()
