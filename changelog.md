@@ -1,3 +1,7 @@
+### 0.1.6
+- Send ping packets over the pub/sub channel to prevent it from going idle.
+- Output an error when you are serving static files from a unknown directory.
+
 ### 0.1.5
 - The client will automatically transform //<domain> in to https://<domain> when
   you tag a `.css` file as relative protocols cause a double download of the
