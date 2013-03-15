@@ -1,3 +1,6 @@
+### 0.1.7
+- The `ms` module is horribly broken, now shipping with working copy of it.
+
 ### 0.1.6
 - Send ping packets over the pub/sub channel to prevent it from going idle.
 - Output an error when you are serving static files from a unknown directory.

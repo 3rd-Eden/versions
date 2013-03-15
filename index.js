@@ -5,7 +5,7 @@ var EventEmitter = require('events').EventEmitter
   , Logger = require('devnull')
   , zlib = require('zlib')
   , path = require('path')
-  , ms = require('ms');
+  , ms = require('./ms');
 
 /**
  * Unique identifier for the server.
