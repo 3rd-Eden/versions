@@ -169,6 +169,8 @@ describe('version.layer() integration', function () {
   });
 
   describe('.layer(pull)', function () {
+    this.timeout(10000);
+
     it('should respond with the correct headers', function (done) {
       versions.app.request()
       .get('/img/trusted.png')
@@ -253,6 +255,26 @@ describe('version.layer() integration', function () {
         expect(res.statusCode).to.equal(404);
 
         done();
+      });
+    });
+
+    it('handles HEAD requests', function (done) {
+      versions.app.request()
+      .get('/id:home/img/sprite.png')
+      .end(function (get) {
+        expect(get.statusCode).to.equal(200);
+        expect(get.body).to.not.equal('');
+
+        versions.app.request()
+        .head('/id:home/img/sprite.png')
+        .end(function (head) {
+          expect(head.statusCode).to.equal(200);
+          expect(head.headers['content-length']).to.equal(get.headers['content-length']);
+          expect(head.headers['content-type']).to.equal(get.headers['content-type']);
+          expect(head.body).to.equal('');
+
+          done();
+        });
       });
     });
 
