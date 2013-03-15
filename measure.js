@@ -3,7 +3,7 @@
 /**
  * Small helpr library for creating metrics.
  *
- * @param {Versions} versions
+ * @param {Versions} versions Reference to versions
  * @api private
  */
 exports.collect = function collect(versions) {
@@ -62,13 +62,15 @@ exports.collect = function collect(versions) {
    * JSON.stringify does not include functions.
    *
    * @param {String} counter Name of the counter that we need to increase
+   * @param {Mixed} meta Meta data
    * @returns {Metrics}
    * @api public
    */
-  metrics.incr = function incr(counter) {
+  metrics.incr = function incr(counter, meta) {
     if (counter in metrics) metrics[counter]++;
     else metrics[counter] = 1;
 
+    versions.emit(counter, metrics[counter], meta);
     return metrics;
   };
 
