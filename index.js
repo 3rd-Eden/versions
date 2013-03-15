@@ -601,6 +601,11 @@ Versions.prototype.sync = function sync() {
         return self.logger.error('[versions] Received a channel that we not registered for');
       }
 
+      // handle ping messages that keep the connection alive
+      if ('versions:ping' === data) {
+        return self.logger.debug('[versions] Received a ping packet');
+      }
+
       // Prevent invalid data to be transmitted
       try { data = JSON.parse(data); }
       catch (e) {
@@ -640,7 +645,10 @@ Versions.prototype.sync = function sync() {
       });
     });
 
-    // Retrieve the configuration from database.
+    //
+    // Fetch the configuration from redis as there might been changes that where
+    // synced before we put this node online.
+    //
     pub.get(namespace, function cloud(err, config) {
       // Another connection check checkpoint
       checkpoint();
@@ -656,6 +664,16 @@ Versions.prototype.sync = function sync() {
         self.emit('sync#'+ key, config[key]);
       });
     });
+
+    //
+    // We need to send a PING message over the pub/sub channel to ensure that
+    // that channel doesn't become idle and shut down automatically. There's
+    // a reconnect procedure as backup but it's still possible to lose messages
+    // while we are reconnecting.
+    //
+    pub.KEEPALIVE = setInterval(function interval() {
+      pub.publish(namespace, 'versions:ping');
+    }, this.parse('2 minutes'));
 
     return true;
   }
@@ -775,7 +793,11 @@ Versions.prototype.end = function (callback) {
   // Shut down the Redis connections
   if ('connections' in this) {
     Object.keys(this.connections).forEach(function each(key) {
-      this.connections[key].end();
+      var connection = this.connections[key];
+      connection.end();
+
+      // Check if there's a KEEPALIVE interval on this connection
+      if ('KEEPALIVE' in connection) clearInterval(connection.KEEPALIVE);
     }, this);
   }
 
