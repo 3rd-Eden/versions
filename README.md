@@ -329,7 +329,7 @@ Versions also provides you with some API sugar to make configuring a bit more
 human readable:
 
 ```js
-versions.path('/public').expire('10 hours').se('sync', true);
+versions.path('/public').expire('10 hours').set('sync', true);
 ```
 
 The following API methods map directly to configuration (see versions.json
