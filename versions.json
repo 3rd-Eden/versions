@@ -1,7 +1,7 @@
 {
   "aliases": [],
   "auth": "",
-  "blacklisted extensions": [],
+  "blacklisted extensions": [".bak", ".config", ".sql", ".fla", ".psd", ".ini", ".log", ".sh", ".inc", ".swp", ".dist"],
   "cors": "*",
   "directory": "",
   "expire internal cache": "1 hour",
