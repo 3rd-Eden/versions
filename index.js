@@ -36,13 +36,15 @@ function Versions(options) {
   this.set('root', path.dirname(module.parent.filename));
   this.logger = new Logger({ namespacing: -1 });
 
+  var root = path.resolve(__dirname, '../..');
+
   // Read in the various of configurations that we want to merge in to our own
   // configuration object.
   if (!options.cloned) {
-    this.read('../../node_modules/package.json');    // For version number
-    this.read('./versions.json');                    // For our defaults
-    this.read('../../node_modules/versions.json');   // For their defaults
-    this.read('../../node_modules/versions.js');     // For their defaults
+    this.read(path.join(root, 'package.json'));   // For version number
+    this.read('./versions.json');                 // For our defaults
+    this.read(path.join(root, 'versions.json'));  // For their defaults
+    this.read(path.join(root, 'versions.js'));    // For their defaults
   } else {
     Object.keys(options.cloned).forEach(function merge(key) {
       // Merge in the cloned configuration, silently
