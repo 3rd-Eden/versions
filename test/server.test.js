@@ -97,6 +97,12 @@ describe('versions()', function () {
       versions.read(path.resolve(__dirname, './fixtures/extra.js'));
       expect(versions.get('plain')).to.equal('javascript');
     });
+
+    it('reads the configuration from the root folder', function () {
+      var version = require('versions');
+
+      expect(version.get('auth')).to.equal('foo');
+    });
   });
 
   describe("#clone", function () {

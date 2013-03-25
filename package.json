@@ -37,6 +37,7 @@
     "mocha": "1.8.x",
     "redis": "0.8.x",
     "sinon": "1.6.x",
-    "sinon-chai": "2.3.x"
+    "sinon-chai": "2.3.x",
+    "versions": "git://github.com/3rd-Eden/versions.git"
   }
 }
