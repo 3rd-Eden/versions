@@ -1,3 +1,11 @@
+### 0.1.8
+- Fixed a bug in the configuration loading where it would read out the incorrect
+  folder.
+- Added some default extensions that are blacklisted, these are known backup or
+  log files.
+- The server will now emit an event for every metric so you can start logging on
+  why you get 404's etc.
+
 ### 0.1.7
 - The `ms` module is horribly broken, now shipping with working copy of it.
 
