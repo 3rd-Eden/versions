@@ -385,7 +385,7 @@ Versions.prototype.allows = function allows(what, req) {
 
       // Don't accept queries without file extensions and ignore blacklisted
       // extensions
-      return req.extension !== ''
+      return (this.get('force extensions') && req.extension !== '')
         && !~this.get('blacklisted extensions').indexOf(req.extension);
 
     // Does this request allow 304 requests?

@@ -5,6 +5,7 @@
   "cors": "*",
   "directory": "",
   "expire internal cache": "1 hour",
+  "force extensions": true,
   "log level": "log",
   "max age": "30 days",
   "origin servers": [],

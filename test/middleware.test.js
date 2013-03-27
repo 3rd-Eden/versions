@@ -276,6 +276,24 @@ describe('version.layer() integration', function () {
           done();
         });
       });
+
+      it('doesnt allow files without extensions', function () {
+        versions.app.request()
+        .get('/id:home/')
+        .end(function (get) {
+          expect(get.statusCode).to.equal(404);
+          versions.set('force extensions', false);
+
+          versions.app.request()
+          .head('/id:home/img/sprite.png')
+          .end(function (head) {
+            versions.set('force extensions', true);
+            expect(head.statusCode).to.equal(200);
+
+            done();
+          });
+        });
+      });
     });
 
     it('should cache pull requests in memory');
