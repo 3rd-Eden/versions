@@ -276,14 +276,20 @@ describe('version.layer() integration', function () {
           done();
         });
       });
+    });
 
-      it('doesnt allow files without extensions', function () {
+    it('doesnt allow files without extensions', function (done) {
+      versions.app.request()
+      .get('/id:home/')
+      .end(function (get) {
+        expect(get.statusCode).to.equal(404);
+        versions.set('force extensions', false);
+        
         versions.app.request()
-        .get('/id:home/')
-        .end(function (get) {
-          expect(get.statusCode).to.equal(404);
-          versions.set('force extensions', false);
-
+        .head('/id:home/')
+        .end(function (head) {
+          expect(head.statusCode).to.equal(200);
+          
           versions.app.request()
           .head('/id:home/img/sprite.png')
           .end(function (head) {
