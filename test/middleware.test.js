@@ -284,12 +284,12 @@ describe('version.layer() integration', function () {
       .end(function (get) {
         expect(get.statusCode).to.equal(404);
         versions.set('force extensions', false);
-        
+
         versions.app.request()
         .head('/id:home/')
         .end(function (head) {
           expect(head.statusCode).to.equal(200);
-          
+
           versions.app.request()
           .head('/id:home/img/sprite.png')
           .end(function (head) {
@@ -462,26 +462,29 @@ describe('version.layer() integration', function () {
         });
       });
     });
-    
-    describe('/expire', function() {
+
+    describe('/expire', function () {
       before(function(done) {
         versions.app.request()
         .get('/id:home/img/sprite.png')
-        .end(function (res) { done(); });
-      })
-      
+        .end(function (res) {
+          done();
+        });
+      });
+
       it('removes a specific entry in the cache', function(done) {
         expect(versions.cache.length).to.be.above(0);
         var cacheLength = versions.cache.length;
-        
+
         versions.app.request()
         .get('/expire?auth=foobar&key=' + escape('#/id:home/img/sprite.png'))
-        .end(function(res) {
+        .end(function (res) {
           expect(res.body).to.contain('OK');
           expect(res.statusCode).to.equal(200);
           expect(versions.cache.length).to.equal(cacheLength - 1);
           expect(versions.cache.has('#/img/sprite.png')).to.be.false;
-          
+          expect(JSON.parse(res.body).expired).to.equal(1);
+
           done();
         });
       });

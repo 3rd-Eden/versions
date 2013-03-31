@@ -370,6 +370,115 @@ your `versions.json` file:
 require('versions').listen();
 ```
 
+## Rest API
+
+#### GET /flush
+
+Completely removes the internal cache. This does not flush cache-headers for the
+HTTP requests.
+
+Returns:
+
+```js
+{
+  flush: 'OK'
+}
+```
+
+#### GET /expire?key=<key>
+
+Removes the matched item(s) from the internal cache. It uses the value of
+`?key=key` to find and match it against request URLS in the cache.
+
+Returns:
+
+```js
+{
+  expire: 'OK',
+  expired: 1
+}
+```
+
+#### GET /inspect?key=<key>
+
+Finds the item in the cache and displays some information about it, like the
+total size of gzip, content-length etc.
+
+Returns:
+
+```js
+{
+  key: 'name of the key',
+  data: {
+    'Content-Length': 0,
+    'Content-Length Gzip': 0,
+    'Content-Type': 'text/html',
+    'Last-Modified': 'Sun, 31 Mar 2013 13:37:33 GMT'
+  }
+}
+```
+
+Or when a given key is not found:
+
+```js
+{ inspect: 'Failed to find the requested key file in cache' }
+```
+
+#### GET /keys
+
+Lists all items that are currently in the cache.
+
+Returns:
+
+```js
+{
+  keys: [
+    "versions:0.1.14#/css/jitsu.min.css",
+    "#/id:home/img/sprite.png",
+    "versions:0.1.14#/js/jitsu.min.js",
+    "#/id:home/img/nodepm.png",
+    "versions:0.1.14#/js/cortex.min.js",
+    "#/id:home/img/trusted.png",
+    "#/id:home/img/cloud.png",
+    "#/id:home/webfonts/ss-standard.woff",
+    "#/id:home/webfonts/ss-social-regular.woff",
+    "#/id:home/webfonts/ss-social-circle.woff",
+    "#/id:home/img/spinner.gif"
+  ]
+}
+```
+
+#### GET /version
+
+Get the current version of internal cache.
+
+Returns:
+
+```json
+{ versions: '0.0.0' }
+```
+
+#### POST/PUT /version
+
+Update the server to a new version number, if Redis sync is also the changes will
+also be synced with other instances.
+
+Returns:
+
+```js
+{ versions: '0.0.0' }
+```
+
+Or when no body is send:
+
+```js
+{ error: 'Invalid body' }
+```
+
+#### GET /metrics
+
+Returns a bunch of metrics.
+
 ## License
 
 MIT
