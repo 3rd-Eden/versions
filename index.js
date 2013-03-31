@@ -533,12 +533,12 @@ Versions.prototype.forEach = function forEach(collection, iterator, context) {
   if (context) {
     if (isArray) {
       for (; i < length; i++) {
-        value = iterator.apply(collection[ i ], context);
+        value = iterator.apply(collection[i], context);
         if (value === false) break;
       }
     } else {
       for (i in collection) {
-        value = iterator.apply(collection[ i ], context);
+        value = iterator.apply(collection[i], context);
         if (value === false) break;
       }
     }
