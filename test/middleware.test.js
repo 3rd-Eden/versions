@@ -462,6 +462,30 @@ describe('version.layer() integration', function () {
         });
       });
     });
+    
+    describe('/expire', function() {
+      before(function(done) {
+        versions.app.request()
+        .get('/id:home/img/sprite.png')
+        .end(function (res) { done(); });
+      })
+      
+      it('removes a specific entry in the cache', function(done) {
+        expect(versions.cache.length).to.be.above(0);
+        var cacheLength = versions.cache.length;
+        
+        versions.app.request()
+        .get('/expire?auth=foobar&key=' + escape('#/id:home/img/sprite.png'))
+        .end(function(res) {
+          expect(res.body).to.contain('OK');
+          expect(res.statusCode).to.equal(200);
+          expect(versions.cache.length).to.equal(cacheLength - 1);
+          expect(versions.cache.has('#/img/sprite.png')).to.be.false;
+          
+          done();
+        });
+      });
+    });
   });
 
   describe('.layer(versioning)', function () {
