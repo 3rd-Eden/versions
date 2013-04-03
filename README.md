@@ -148,6 +148,19 @@ using the API to override some of the configuration values.
     <pre>versions.set('directory', './public');</pre>
   </dd>
 
+  <dt>force extensions</dt>
+  <dd>
+    <p>
+      Only allow files with an extension to be pulled from origin servers. The
+      reason behind this is that you might set your own site as full origin and
+      that would mean that your regular pages would also be proxied by versions
+      and create duplicate content. It's much less common that <code>.html</code>
+      are served. Thats why we force extensions by default.
+    </p>
+
+    <pre>versions.set('force extensions', false);</pre>
+  </dd>
+
   <dt>expire internal cache</dt>
   <dd>
     <p>
