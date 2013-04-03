@@ -1,6 +1,6 @@
 {
   "name": "versions",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Content Delivery Network",
   "main": "index.js",
   "scripts": {

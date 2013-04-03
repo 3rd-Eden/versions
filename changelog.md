@@ -1,9 +1,11 @@
+### 0.1.10
+- A new REST route `/expire` has been added to expire individual items instead
+  of the whole cache.
+
 ### 0.1.9
 - By default we disallow fetches from origin servers that don't specify an
   extension. This behaviour can now be overrulled using the `force extensions`
   config.
-- A new REST route `/expire` has been added to expire individual items instead
-  of the whole cache.
 
 ### 0.1.8
 - Fixed a bug in the configuration loading where it would read out the incorrect
