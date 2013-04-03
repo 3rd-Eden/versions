@@ -320,9 +320,9 @@ Versions.prototype.write = function write(req, res, data) {
     if (type) {
       res.setHeader('Content-Encoding', type);
       body = data.compressed[type];
-      this.metrics.incr(type);
+      this.metrics.incr(type, { req: req, res: res });
     } else {
-      this.metrics.incr('compression blocked');
+      this.metrics.incr('compression blocked', { req: req, res: res });
     }
   }
 

@@ -1,3 +1,6 @@
+### 0.1.11
+- Ensure that all metrics emit an object with {req, res}
+
 ### 0.1.10
 - A new REST route `/expire` has been added to expire individual items instead
   of the whole cache.
