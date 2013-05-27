@@ -585,7 +585,7 @@ Versions.prototype.sync = function sync() {
     namespace: namespace
   });
 
-  leverage.subscribe(namespace, { ordered: true });
+  leverage.subscribe(namespace, { ordered: true, replay: 0 });
   leverage.on(namespace +'::message', function onmessage(message, id) {
     var data;
 
