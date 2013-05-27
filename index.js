@@ -631,18 +631,23 @@ Versions.prototype.sync = function sync() {
 
   leverage.on(namespace +'::online', function online() {
     redis.get(namespace, function cloudconfig(err, config) {
-      self.emit('sync#ready');
+      if (err || !config) self.emit('sync#ready');
 
       if (err) return self.logger.warning('[versions] Could not sync the initial config from the cloud');
       if (!config) return self.logger.debug('[versions] No config in cloud');
 
       try { config = JSON.parse(config); }
-      catch (e) { return self.logger.error('[versions] Failed to parse initial config'); }
+      catch (e) {
+        self.emit('sync#ready');
+        return self.logger.error('[versions] Failed to parse initial config');
+      }
 
       self.syncing.forEach(function forEach(key) {
         self.set(key, config[key], true);
         self.emit('sync#'+ key, config[key]);
       });
+
+      self.emit('sync#ready');
     });
   });
 
