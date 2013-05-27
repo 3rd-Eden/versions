@@ -1,3 +1,6 @@
+### 0.2.0
+- Refactor Redis internals to use `Leverage` as reliable Pub/Sub channel
+
 ### 0.1.11
 - Ensure that all metrics emit an object with {req, res}
 

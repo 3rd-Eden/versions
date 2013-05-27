@@ -2,6 +2,7 @@
 
 var EventEmitter = require('events').EventEmitter
   , Expirable = require('expirable')
+  , Leverage = require('leverage')
   , Logger = require('devnull')
   , zlib = require('zlib')
   , path = require('path')
@@ -566,94 +567,71 @@ Versions.prototype.forEach = function forEach(collection, iterator, context) {
  * @api private
  */
 Versions.prototype.sync = function sync() {
-  var self = this
-    , points = 0;
+  if (!(this.get('redis') && this.get('sync'))) return false;
 
-  /**
-   * The Redis connection must pass all checkpoints before it's ready.
-   *
-   * @api private
-   */
-  function checkpoint() {
-    if (++points === 3) {
-      self.logger.debug(self.id + ' connection is fully established and linked');
-      self.emit('sync#ready');
+  //
+  // Generate the connections
+  //
+  this.connections = this.factory();
+
+  var namespace = this.get('namespace') || 'versions'
+    , redis = this.connections.pub
+    , self = this;
+
+  //
+  // Leverage Leverage for the Pub/Sub behaviour.
+  //
+  var leverage = new Leverage(redis, this.connections.sub, {
+    namespace: namespace
+  });
+
+  leverage.subscribe(namespace, { ordered: true });
+  leverage.on(namespace +'::message', function onmessage(message, id) {
+    var data;
+
+    // Prevent invalid data to be transmitted
+    try { data = JSON.parse(message); }
+    catch (e) {
+      return self.logger.error('[versions] Failed to parse PUB/SUB message', message);
     }
-  }
 
-  if (this.get('redis') && this.get('sync')) {
-    if (this.connections) return false;
+    // Make sure that it's valid data
+    if (!data || !data.key || !data.value) {
+      return self.logger.error('[versions] Received an invalid data structure', data);
+    }
 
-    var namespace = this.get('redis').namespace || 'versions'
-      , pub, sub;
+    // Make sure that the value actually differs from our own implementation.
+    var prev = self.get(data.key);
 
-    // Generate the Redis connections
-    this.connections = this.factory();
-    sub = this.connections.sub;
-    pub = this.connections.pub;
+    self.set(data.key, data.value, false);
+    self.emit('sync:'+ data.key, data.value, prev);
+  });
 
-    // Start listening for the ready event of the redisClient so we can emit
-    [pub, sub].forEach(function ready(client) {
-      client.once('connect', checkpoint);
-    });
+  //
+  // Start listening for configuration changes so we can publish them across
+  // the cluster.
+  //
+  this.syncing.forEach(function forEach(key) {
+    self.on('change:'+ key, function change(from, to) {
+      redis.set(namespace, JSON.stringify(self.config), function (err) {
+        if (err) self.logger.error('[versions] Failed to store config');
 
-    // Setup our subscription channel so we can start listening for events.
-    sub.on('message', function message(channel, data) {
-      if (channel !== namespace) {
-        return self.logger.error('[versions] Received a channel that we not registered for');
-      }
-
-      // handle ping messages that keep the connection alive
-      if ('versions:ping' === data) {
-        return self.logger.debug('[versions] Received a ping packet');
-      }
-
-      // Prevent invalid data to be transmitted
-      try { data = JSON.parse(data); }
-      catch (e) {
-        return self.logger.error('[versions] Failed to parse PUB/SUB message', data);
-      }
-
-      // Make sure that it's valid data
-      if (!data || !data.key || !data.value) {
-        return self.logger.error('[versions] Received an invalid data structure', data);
-      }
-
-      // Make sure that the value actually differs from our own implementation.
-      var prev = self.get(data.key);
-
-      self.set(data.key, data.value, false);
-      self.emit('sync:'+ data.key, data.value, prev);
-    }).subscribe(namespace);
-
-    // Start listening for configuration changes so we can publish them across
-    // the cluster.
-    this.syncing.forEach(function forEach(key) {
-      self.on('change:'+ key, function change(from, to) {
-
-        var atomic = pub.multi();
-        atomic.set(namespace, JSON.stringify(self.config));
-        atomic.publish(namespace, JSON.stringify({
+        leverage.publish(namespace, JSON.stringify({
             key: key
           , value: to
           , from: from
-        }));
-
-        atomic.exec(function stored(err) {
-          if (err) self.logger.error('[versions] Failed to sync the configuration in the cloud');
+        }), function published(err) {
+          if (err) self.logger.error('[versions] Failed to publish message');
 
           self.emit('stored:'+ key, err);
         });
       });
     });
+  });
 
-    //
-    // Fetch the configuration from redis as there might been changes that where
-    // synced before we put this node online.
-    //
-    pub.get(namespace, function cloud(err, config) {
-      // Another connection check checkpoint
-      checkpoint();
+  leverage.on(namespace +'::online', function online() {
+    redis.get(namespace, function cloudconfig(err, config) {
+      self.emit('sync#ready');
 
       if (err) return self.logger.warning('[versions] Could not sync the initial config from the cloud');
       if (!config) return self.logger.debug('[versions] No config in cloud');
@@ -666,21 +644,9 @@ Versions.prototype.sync = function sync() {
         self.emit('sync#'+ key, config[key]);
       });
     });
+  });
 
-    //
-    // We need to send a PING message over the pub/sub channel to ensure that
-    // that channel doesn't become idle and shut down automatically. There's
-    // a reconnect procedure as backup but it's still possible to lose messages
-    // while we are reconnecting.
-    //
-    pub.KEEPALIVE = setInterval(function interval() {
-      pub.publish(namespace, 'versions:ping');
-    }, this.parse('2 minutes'));
-
-    return true;
-  }
-
-  return false;
+  return true;
 };
 
 /**

@@ -25,19 +25,20 @@
   "license": "MIT",
   "dependencies": {
     "connect": "2.7.x",
-    "cookie": "0.0.x",
+    "cookie": "0.1.x",
     "devnull": "0.0.x",
     "expirable": "0.0.x",
     "hashring": "1.0.x",
-    "request": "2.14.x",
-    "semver": "1.1.x"
+    "request": "2.21.x",
+    "semver": "1.1.x",
+    "leverage": "0.0.x"
   },
   "devDependencies": {
-    "chai": "1.5.x",
-    "mocha": "1.8.x",
+    "chai": "1.6.x",
+    "mocha": "1.10.x",
     "redis": "0.8.x",
-    "sinon": "1.6.x",
-    "sinon-chai": "2.3.x",
+    "sinon": "1.7.x",
+    "sinon-chai": "2.4.x",
     "versions": "git://github.com/3rd-Eden/versions.git"
   }
 }
