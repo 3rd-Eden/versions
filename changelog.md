@@ -1,3 +1,7 @@
+### 0.2.1
+- Don't reply events from our pub/sub channel when we join it.
+- Emit ready after the data has been synced
+
 ### 0.2.0
 - Refactor Redis internals to use `Leverage` as reliable Pub/Sub channel
 
