@@ -643,7 +643,7 @@ Versions.prototype.sync = function sync() {
       }
 
       self.syncing.forEach(function forEach(key) {
-        self.set(key, config[key], true);
+        self.set(key, config[key], false);
         self.emit('sync#'+ key, config[key]);
       });
 
