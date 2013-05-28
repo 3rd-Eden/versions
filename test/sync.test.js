@@ -161,6 +161,22 @@ describe('versions.connect() & version() config sync', function () {
         done();
       });
     });
+
+    it('does not emit a change event when the intial config is received', function (done) {
+      var node = require('../').clone()
+        .set('version', '9.2.4')
+        .set('redis', redis).set('sync', true)
+        .listen(portnumbers);
+
+      node.once('change:version', function () {
+        throw new Error('I should not have been called');
+      });
+
+      node.once('sync#version', function (to) {
+        node.end();
+        done();
+      });
+    });
   });
 
   describe('http', function () {
