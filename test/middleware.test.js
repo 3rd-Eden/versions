@@ -340,17 +340,12 @@ describe('version.layer() integration', function () {
     it('optionally ignores the query string', function(done) {
       versions.set('ignore querystring', true);
       versions.app.request()
-      .get('/img/trusted.png?query=string1')
+      .get('/img/sprite.png?query=string1')
       .end(function(res) {
         expect(res.statusCode).to.equal(200);
-        expect(res.headers['x-cache']).to.equal('Pull');
-        
-        versions.app.request()
-        .get('/img/trusted.png?query=string2')
-        .end(function(res) {
-          expect(res.statusCode).to.equal(200);
-          expect(res.headers['x-cache']).to.equal('HIT');
-        });
+        expect(res.headers['x-cache']).to.equal('HIT');
+
+        done();
       });
     });
     
