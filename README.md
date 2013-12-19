@@ -161,6 +161,19 @@ using the API to override some of the configuration values.
     <pre>versions.set('force extensions', false);</pre>
   </dd>
 
+  <dt>ignore querystring</dt>
+  <dd>
+    <p>
+      Ignore the querystring when generating the cache key. When you use querystring
+      parameters that are not used on the server, including the querystring in
+      the cache key would bypass the cache every time. Setting this option to true,
+      the cache key is only generated from the requested pathname. Because in most 
+      cases this behavior is unwanted, this to false.
+    </p>
+
+    <pre>versions.set('ignore querystring', false);</pre>
+  </dd>
+  
   <dt>expire internal cache</dt>
   <dd>
     <p>

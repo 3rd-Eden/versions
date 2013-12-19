@@ -12,5 +12,6 @@
   "plugins": [],
   "port": 8080,
   "sync": false,
-  "version": "0.0.0"
+  "version": "0.0.0",
+  "ignore querystring": false
 }
