@@ -243,7 +243,7 @@ Versions.prototype.listen = function listen(port, callback) {
   
   //Load middleware helpers
   if (this.helpers.length) {
-    this.helpers.foreach(function add(plugin) {
+    this.helpers.forEach(function add(plugin) {
       if(typeof plugin == 'function') {
         this.app.use(plugin.bind(this));
       }
