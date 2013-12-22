@@ -230,6 +230,14 @@ Versions.prototype.listen = function listen(port, callback) {
   this.layer('compress');
   this.layer('memorize');
 
+  //Load middleware helpers
+  if (this.helpers.length) {
+    this.helpers.forEach(function add(plugin) {
+      if(typeof plugin == 'function') {
+        this.app.use(plugin.bind(this));
+      }
+    }, this);
+  }
   // Allow the loading of third party components.
   if (this.get('plugins')) {
     this.get('plugins').forEach(function add(plugin) {
@@ -237,15 +245,6 @@ Versions.prototype.listen = function listen(port, callback) {
         this.layer(plugin);
       } else {
         this.layer(plugin.name, plugin.config);
-      }
-    }, this);
-  }
-  
-  //Load middleware helpers
-  if (this.helpers.length) {
-    this.helpers.forEach(function add(plugin) {
-      if(typeof plugin == 'function') {
-        this.app.use(plugin.bind(this));
       }
     }, this);
   }
