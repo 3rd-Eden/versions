@@ -222,14 +222,6 @@ Versions.prototype.listen = function listen(port, callback) {
   // Initialize the server configuration.
   this.initialize('server');
 
-  // Configure the middleware.
-  this.layer('responseTime');
-  this.layer('initialize');
-  this.layer('versioning');
-  this.layer('conditional');
-  this.layer('compress');
-  this.layer('memorize');
-
   //Load middleware helpers
   if (this.helpers.length) {
     this.helpers.forEach(function add(plugin) {
@@ -238,6 +230,15 @@ Versions.prototype.listen = function listen(port, callback) {
       }
     }, this);
   }
+
+  // Configure the middleware.
+  this.layer('responseTime');
+  this.layer('initialize');
+  this.layer('versioning');
+  this.layer('conditional');
+  this.layer('compress');
+  this.layer('memorize');
+  
   // Allow the loading of third party components.
   if (this.get('plugins')) {
     this.get('plugins').forEach(function add(plugin) {
