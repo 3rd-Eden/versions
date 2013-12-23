@@ -36,6 +36,34 @@ describe('versions()', function () {
     });
   });
 
+  describe('#use', function () {
+    var versions; 
+    before(function () {
+      versions = require('../').clone();
+      var middleware = function (req, res, next) {
+        res.setHeader('random-header', 12345);
+        next();
+      };
+
+      versions.use(middleware);
+      versions.listen(portnumbers);
+    });
+
+    after(function (done) {
+      versions.end(done);
+    });
+
+    it('loads in our external middleware', function (done) {
+        versions.app.request()
+        .get('/index.js')
+        .end(function (res) {
+          var headers = res.headers;
+          expect(parseInt(headers['random-header'], 0)).to.equal(12345);
+          done();
+        });
+    });
+  });
+
   describe("#parse", function () {
     var versions;
     before(function () {
