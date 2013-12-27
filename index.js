@@ -36,6 +36,8 @@ function Versions(options) {
   // Default the root of the module to the folder that required this module.
   this.set('root', path.dirname(module.parent.filename));
   this.logger = new Logger({ namespacing: -1 });
+  
+  this.helpers = [];
 
   var root = path.resolve(__dirname, '../..');
 
@@ -56,6 +58,17 @@ function Versions(options) {
   // Now that we have fetched their details, we can see if we need to silence
   // our logger.
   this.logger.level = Logger.levels[this.get('log level')];
+}
+
+/**
+ * Add external middleware to be loaded on initialize.
+ *
+ * @param {Object} The middleware
+ * @api public
+ */
+Versions.prototype.use = function (method) {
+  this.helpers.push(method);
+  return this;
 }
 
 /**
@@ -209,6 +222,15 @@ Versions.prototype.listen = function listen(port, callback) {
   // Initialize the server configuration.
   this.initialize('server');
 
+  //Load middleware helpers
+  if (this.helpers.length) {
+    this.helpers.forEach(function add(plugin) {
+      if(typeof plugin == 'function') {
+        this.app.use(plugin.bind(this));
+      }
+    }, this);
+  }
+
   // Configure the middleware.
   this.layer('responseTime');
   this.layer('initialize');
@@ -216,7 +238,7 @@ Versions.prototype.listen = function listen(port, callback) {
   this.layer('conditional');
   this.layer('compress');
   this.layer('memorize');
-
+  
   // Allow the loading of third party components.
   if (this.get('plugins')) {
     this.get('plugins').forEach(function add(plugin) {
