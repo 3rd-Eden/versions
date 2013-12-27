@@ -36,7 +36,7 @@ function Versions(options) {
   // Default the root of the module to the folder that required this module.
   this.set('root', path.dirname(module.parent.filename));
   this.logger = new Logger({ namespacing: -1 });
-  
+
   this.helpers = [];
 
   var root = path.resolve(__dirname, '../..');
@@ -66,10 +66,10 @@ function Versions(options) {
  * @param {Object} The middleware
  * @api public
  */
-Versions.prototype.use = function (method) {
+Versions.prototype.use = function use(method) {
   this.helpers.push(method);
   return this;
-}
+};
 
 /**
  * Versions inherits from the EventEmitter so we can emit events for internal
@@ -222,10 +222,10 @@ Versions.prototype.listen = function listen(port, callback) {
   // Initialize the server configuration.
   this.initialize('server');
 
-  //Load middleware helpers
+  // Load middleware helpers
   if (this.helpers.length) {
     this.helpers.forEach(function add(plugin) {
-      if(typeof plugin == 'function') {
+      if ('function' === typeof plugin) {
         this.app.use(plugin.bind(this));
       }
     }, this);
@@ -238,7 +238,7 @@ Versions.prototype.listen = function listen(port, callback) {
   this.layer('conditional');
   this.layer('compress');
   this.layer('memorize');
-  
+
   // Allow the loading of third party components.
   if (this.get('plugins')) {
     this.get('plugins').forEach(function add(plugin) {
