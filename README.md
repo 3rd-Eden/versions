@@ -279,9 +279,9 @@ using the API to override some of the configuration values.
   <dd>
     <p>
       In order to enable a truely distributed cache cloud you can opt in to use
-      a Redis back-end for syncing purposes. Note this requires the `redis` to 
-      be installed as submodule of main project using versions. This object
-      accepts the following properties:
+      a Redis back-end for syncing purposes. Note this requires `redis` to be 
+      installed as submodule of the main project that is using versions. This 
+      object accepts the following properties:
     </p>
 
     <ul>
