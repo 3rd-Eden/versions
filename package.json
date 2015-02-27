@@ -1,6 +1,6 @@
 {
   "name": "versions",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Content Delivery Network",
   "main": "index.js",
   "scripts": {
@@ -28,7 +28,7 @@
     "cookie": "0.1.x",
     "devnull": "0.0.x",
     "expirable": "0.0.x",
-    "hashring": "1.0.x",
+    "hashring": "3.1.x",
     "request": "2.21.x",
     "semver": "1.1.x",
     "leverage": "0.0.x"
