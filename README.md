@@ -481,7 +481,7 @@ Get the current version of internal cache.
 
 Returns:
 
-```json
+```js
 { versions: '0.0.0' }
 ```
 
